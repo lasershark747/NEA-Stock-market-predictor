@@ -10,6 +10,7 @@ using static System.Net.WebRequestMethods;
 using NEA_prototype;
 
 //THis is a test
+//This is a conformation that it works both ways
 
 namespace trialWithStockMarketAPI
 {
