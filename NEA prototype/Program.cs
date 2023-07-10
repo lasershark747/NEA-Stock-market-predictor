@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.IO; //for using a streamreader to read the response from the url
-using System.Net; //for accessing the internet stuff (i think)
-using Newtonsoft.Json; //for using the package
+using System.IO; 
+using System.Net; 
+using Newtonsoft.Json; 
 using static System.Net.WebRequestMethods;
 using NEA_prototype;
 
@@ -31,17 +31,10 @@ namespace trialWithStockMarketAPI
         {
             return ticker;
         }
-
-        public double AverageValue()
+        public prices[] GetPrices()
         {
-            double sum = 0;
-            foreach (prices pr in results)
-            {
-                sum += pr.GetVW();
-            }
-            return sum;
+            return results;
         }
-
     }
 
 
@@ -53,7 +46,7 @@ namespace trialWithStockMarketAPI
         double c { get; set; }
         double h { get; set; }
         double l { get; set; }
-        public long t { get; set; }
+        long t { get; set; }
         int n { get; set; }
 
         //c is the close price
@@ -65,9 +58,13 @@ namespace trialWithStockMarketAPI
         // is the trading volume in the time period
         //vw is the wolume weight average price (this is the main peice of data that i'll be using)
 
-        public double GetVW()
+        public double GetAveragePrice()
         {
             return vw;
+        }
+        public long GetTime()
+        {
+            return t;
         }
     }
     internal class Program
@@ -92,24 +89,19 @@ namespace trialWithStockMarketAPI
             InfoAboutStock infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
 
 
-            Console.WriteLine(responseFromServer);
-            List<long> valueOfStock = new List<long>();
-            foreach (prices pr in infoAboutStock.results)
+            //Console.WriteLine(responseFromServer);
+
+            prices[] valuesOfStock = infoAboutStock.results;
+            Console.WriteLine(valuesOfStock.Length);
+            List<(long,Double)> points = new List<(long,Double)> ();
+            foreach(prices pr in valuesOfStock)
             {
-                valueOfStock.Add(pr.t);
+               points.Add((pr.GetTime(),pr.GetAveragePrice()));
             }
 
-            //Line_Chart lineGraph = new Line_Chart(valueOfStock);
-            //lineGraph.ShowDialog();
 
-
-
-            foreach (prices pr in infoAboutStock.results)
-            {
-                Console.WriteLine(pr.t);
-            }
-
-            Console.WriteLine(valueOfStock.Count);
+            Line_Chart GraphOfStockValue = new Line_Chart(points);
+            GraphOfStockValue.ShowDialog();
             Console.ReadKey();
         }
 
