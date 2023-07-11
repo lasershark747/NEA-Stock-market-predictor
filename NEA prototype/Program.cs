@@ -74,7 +74,7 @@ namespace trialWithStockMarketAPI
             // Set up the response.
             //WebRequest request = WebRequest.Create(SetUpRequest());
             string url = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-            WebRequest request = WebRequest.Create(url);
+            WebRequest request = WebRequest.Create(SetUpRequest());
             // Get the response.
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
