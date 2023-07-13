@@ -46,7 +46,7 @@ namespace trialWithStockMarketAPI
         double c { get; set; }
         double h { get; set; }
         double l { get; set; }
-        long t { get; set; }
+        public long t { get; set; }
         int n { get; set; }
 
         //c is the close price
@@ -73,7 +73,7 @@ namespace trialWithStockMarketAPI
         {
             // Set up the response.
             //WebRequest request = WebRequest.Create(SetUpRequest());
-            string url = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+            string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
             WebRequest request = WebRequest.Create(SetUpRequest());
             // Get the response.
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
@@ -88,33 +88,37 @@ namespace trialWithStockMarketAPI
 
             InfoAboutStock infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
 
-
-            //Console.WriteLine(responseFromServer);
-
+            Console.WriteLine(responseFromServer);
+            Console.ReadKey();
+           
+            
             prices[] valuesOfStock = infoAboutStock.results;
-            Console.WriteLine(valuesOfStock.Length);
             List<(long,Double)> points = new List<(long,Double)> ();
             foreach(prices pr in valuesOfStock)
             {
-               points.Add((pr.GetTime(),pr.GetAveragePrice()));
+
+                Console.WriteLine(pr.t);
+                Console.WriteLine(pr.GetAveragePrice());
+                points.Add((pr.t,pr.GetAveragePrice()));
             }
 
 
             Line_Chart GraphOfStockValue = new Line_Chart(points);
             GraphOfStockValue.ShowDialog();
+            
             Console.ReadKey();
         }
 
         public static string SetUpRequest()
         {
             string output = "https://api.polygon.io/v2/aggs/ticker/";
-            Console.WriteLine("Please enter the ticker for the stock.");
+            Console.WriteLine("Please enter the ticker for the stock on the NASDAQ.");
             output += Console.ReadLine() + "/range/1/";
             Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quater, year.");
             output += Console.ReadLine() + "/";
-            Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the for yyyy-mm-dd.");
+            Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
             output += Console.ReadLine() + "/";
-            Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the for yyyy-mm-dd.");
+            Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
             output += Console.ReadLine() + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
             Console.WriteLine(output);
             return output;

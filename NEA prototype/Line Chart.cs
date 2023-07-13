@@ -23,10 +23,9 @@ namespace NEA_prototype
         private void Line_Chart_Load(object sender, EventArgs e)
         {
             chart1.Series.Add("data");
-            chart1.Series["data"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Stock;
+            chart1.Series["data"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
             foreach ((long,double) point in points) 
             {
-                Console.WriteLine(point.Item2);
                 chart1.Series["data"].Points.AddXY(point.Item1,point.Item2);
             }
             
