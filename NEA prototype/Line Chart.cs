@@ -13,22 +13,24 @@ namespace NEA_prototype
     public partial class Line_Chart : Form
     {
         List<(long,Double)> points;
+        string name;
 
-        public Line_Chart(List<(long,Double)> values)
+        public Line_Chart(List<(long,Double)> values, string name)
         {
             InitializeComponent();
             this.points = values;
+            this.name = name;
         }
 
         private void Line_Chart_Load(object sender, EventArgs e)
         {
-            chart1.Series.Add("data");
-            chart1.Series["data"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            chart1.Series.Add(name);
+            chart1.Series[name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
             foreach ((long,double) point in points) 
             {
-                chart1.Series["data"].Points.AddXY(point.Item1,point.Item2);
+                chart1.Series[name].Points.AddXY(point.Item1,point.Item2);
             }
-            
+           
         }
     }
 }

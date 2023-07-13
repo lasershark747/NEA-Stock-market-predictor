@@ -9,14 +9,11 @@ using Newtonsoft.Json;
 using static System.Net.WebRequestMethods;
 using NEA_prototype;
 
-//THis is a test
-//This is a conformation that it works both ways
-
 namespace trialWithStockMarketAPI
 {
     class InfoAboutStock
     {
-        string ticker { get; set; }
+        public string ticker { get; set; }
         int queryCount { get; set; }
         int resultsCount { get; set; }
 
@@ -96,15 +93,14 @@ namespace trialWithStockMarketAPI
             List<(long,Double)> points = new List<(long,Double)> ();
             foreach(prices pr in valuesOfStock)
             {
-
-                Console.WriteLine(pr.t);
-                Console.WriteLine(pr.GetAveragePrice());
                 points.Add((pr.t,pr.GetAveragePrice()));
             }
 
 
-            Line_Chart GraphOfStockValue = new Line_Chart(points);
+            Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
             GraphOfStockValue.ShowDialog();
+            
+
             
             Console.ReadKey();
         }
