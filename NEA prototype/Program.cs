@@ -8,7 +8,7 @@ using System.Net;
 using Newtonsoft.Json; 
 using static System.Net.WebRequestMethods;
 using NEA_prototype;
-
+//test
 namespace trialWithStockMarketAPI
 {
     class InfoAboutStock
