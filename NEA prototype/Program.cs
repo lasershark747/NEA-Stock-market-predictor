@@ -107,8 +107,8 @@ namespace trialWithStockMarketAPI
 
             Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
             output += Console.ReadLine() + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-
-            Console.WriteLine(output);
+            Console.Clear();
+            Console.WriteLine("The address for the API request is:\n" + output);
             return output;
         }
     }

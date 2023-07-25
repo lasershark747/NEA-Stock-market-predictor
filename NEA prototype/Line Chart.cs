@@ -26,11 +26,18 @@ namespace NEA_prototype
         {
             chart1.Series.Add(name);
             chart1.Series[name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
+            chart1.Series[name].Color = System.Drawing.Color.Black;
             foreach ((long,double) point in points) 
             {
                 chart1.Series[name].Points.AddXY(point.Item1,point.Item2);
             }
-           
+            chart1.Series.Add(name+"1");
+            chart1.Series[name + "1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
+            chart1.Series[name + "1"].Color = System.Drawing.Color.Black;
+            foreach ((long, double) point in points)
+            {
+                chart1.Series[name + "1"].Points.AddXY(point.Item1, point.Item2);
+            }
         }
     }
 }
