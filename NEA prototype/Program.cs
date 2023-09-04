@@ -8,8 +8,12 @@ using System.Net;
 using Newtonsoft.Json; 
 using static System.Net.WebRequestMethods;
 using NEA_prototype;
-//test
-//test 2
+/*
+curve needs to be in form x^0 --> x^n rather then x^n --> x^0
+
+
+
+*/
 namespace trialWithStockMarketAPI
 {
     class InfoAboutStock
@@ -89,6 +93,14 @@ namespace trialWithStockMarketAPI
             }
 
             Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
+            foreach((long, Double) pr in points)
+            {
+                Console.WriteLine(pr.Item1);
+            }
+            foreach ((long, Double) pr in points)
+            {
+                Console.WriteLine(pr.Item2);
+            }
             GraphOfStockValue.ShowDialog();
             
             Console.ReadKey();
