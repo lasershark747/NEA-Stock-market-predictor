@@ -8,6 +8,7 @@ using System.Net;
 using Newtonsoft.Json; 
 using static System.Net.WebRequestMethods;
 using NEA_prototype;
+using System.Windows.Forms;
 /*
 curve needs to be in form x^0 --> x^n rather then x^n --> x^0
 
@@ -72,9 +73,36 @@ namespace trialWithStockMarketAPI
     {
         static void Main(string[] args)
         {
-            string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-            WebRequest request = WebRequest.Create(SetUpRequest());
+            LoadMenu();
 
+
+
+
+
+            InfoAboutStock infoAboutStock = DoAPIRequest();
+            prices[] valuesOfStock = infoAboutStock.GetPrices();
+            List<(long,Double)> points = new List<(long,Double)> ();
+            foreach(prices pr in valuesOfStock)
+            {
+                points.Add((pr.GetTime(),pr.GetAveragePrice()));
+            }
+
+            Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
+            GraphOfStockValue.ShowDialog();
+            
+            Console.ReadKey();
+        }
+
+        private static void LoadMenu()
+        {
+           //MENU
+        }
+
+        public static InfoAboutStock DoAPIRequest()
+        {
+            string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+            //WebRequest request = WebRequest.Create(SetUpRequest());
+            WebRequest request = WebRequest.Create(exampleAddress);
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
             Stream dataStream = response.GetResponseStream();
@@ -83,28 +111,13 @@ namespace trialWithStockMarketAPI
 
             string responseFromServer = reader.ReadToEnd();
 
-            InfoAboutStock infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);           
-            
-            prices[] valuesOfStock = infoAboutStock.results;
-            List<(long,Double)> points = new List<(long,Double)> ();
-            foreach(prices pr in valuesOfStock)
-            {
-                points.Add((pr.t,pr.GetAveragePrice()));
-            }
+            InfoAboutStock infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
 
-            Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
-            foreach((long, Double) pr in points)
-            {
-                Console.WriteLine(pr.Item1);
-            }
-            foreach ((long, Double) pr in points)
-            {
-                Console.WriteLine(pr.Item2);
-            }
-            GraphOfStockValue.ShowDialog();
-            
-            Console.ReadKey();
+            return infoAboutStock;
         }
+
+
+
 
         public static string SetUpRequest()
         {
