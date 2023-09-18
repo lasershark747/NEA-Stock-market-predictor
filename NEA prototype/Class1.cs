@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace NEA_prototype
 {
-    internal class SumOFResiduals
+    internal class SumOfResiduals
     {
         private List<(long, Double)> data;
         public List<decimal> curve;
 
 
-        public SumOFResiduals(List<(long, double)> data, List<decimal> curve)
+        public SumOfResiduals(List<(long, double)> data, List<decimal> curve)
         {
             this.data = data;
             this.curve = curve;

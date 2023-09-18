@@ -73,11 +73,7 @@ namespace trialWithStockMarketAPI
     {
         static void Main(string[] args)
         {
-            LoadMenu();
-
-
-
-
+            //LoadMenu();
 
             InfoAboutStock infoAboutStock = DoAPIRequest();
             prices[] valuesOfStock = infoAboutStock.GetPrices();
@@ -88,6 +84,19 @@ namespace trialWithStockMarketAPI
             }
 
             Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
+
+
+            InfoAboutStock infoAboutStock1 = DoAPIRequest();
+            prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
+            List<(long, Double)> points1 = new List<(long, Double)>();
+            foreach (prices pr in valuesOfStock1)
+            {
+                points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+            }
+
+
+
+            GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
             GraphOfStockValue.ShowDialog();
             
             Console.ReadKey();
@@ -101,8 +110,8 @@ namespace trialWithStockMarketAPI
         public static InfoAboutStock DoAPIRequest()
         {
             string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-            //WebRequest request = WebRequest.Create(SetUpRequest());
-            WebRequest request = WebRequest.Create(exampleAddress);
+            WebRequest request = WebRequest.Create(SetUpRequest());
+            //WebRequest request = WebRequest.Create(exampleAddress);
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
             Stream dataStream = response.GetResponseStream();
@@ -115,8 +124,6 @@ namespace trialWithStockMarketAPI
 
             return infoAboutStock;
         }
-
-
 
 
         public static string SetUpRequest()
