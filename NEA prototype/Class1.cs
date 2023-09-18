@@ -31,7 +31,7 @@ namespace NEA_prototype
         }
 
 
-        public decimal ResidualSumOfSquares()
+        private decimal ResidualSumOfSquares()
         {
             decimal sum = 0;
             foreach ((long, Double) p in data)
@@ -42,7 +42,7 @@ namespace NEA_prototype
             return sum;
         }
 
-        public decimal TotalVariance()
+        private decimal TotalVariance()
         {
             decimal sum = 0;
 
@@ -57,7 +57,7 @@ namespace NEA_prototype
         }
 
 
-        public decimal FOfX(long x)
+        private decimal FOfX(long x)
         {
             decimal sum = 0; 
             for(int i = 0; i < curve.Count; i++)
@@ -65,9 +65,9 @@ namespace NEA_prototype
                 sum += curve[i] * (decimal)Math.Pow(x, i);
             }
             return sum;
-        }     
+        }
 
-        public decimal FindTheMean()
+        private decimal FindTheMean()
         {
             decimal count = 0;
             decimal sum = 0;
