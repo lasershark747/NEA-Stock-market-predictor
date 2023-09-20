@@ -67,17 +67,6 @@ namespace NEA_prototype
             return sum;
         }
 
-        private decimal FindTheMean()
-        {
-            decimal count = 0;
-            decimal sum = 0;
-            foreach((long, Double) p in data)
-            {
-                sum += (decimal)p.Item2;
-                count++;
-            }
-
-            return sum / count;
-        }
+        private decimal FindTheMean() => data.Sum(p => (decimal) p.Item2) / data.Count;
     }
 }

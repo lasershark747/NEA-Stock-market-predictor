@@ -86,19 +86,27 @@ namespace trialWithStockMarketAPI
             Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
 
 
-            InfoAboutStock infoAboutStock1 = DoAPIRequest();
-            prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
-            List<(long, Double)> points1 = new List<(long, Double)>();
-            foreach (prices pr in valuesOfStock1)
+
+            while (true)
             {
-                points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                Console.WriteLine("Would you like to add a new stock?\ny or n");
+                if(Console.ReadLine() != "y")
+                {
+                    break;
+                }
+
+
+                InfoAboutStock infoAboutStock1 = DoAPIRequest();
+                prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
+                List<(long, Double)> points1 = new List<(long, Double)>();
+                foreach (prices pr in valuesOfStock1)
+                {
+                    points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                }
+                GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
             }
-
-
-
-            GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
             GraphOfStockValue.ShowDialog();
-            
+            Console.WriteLine("Goodbye");
             Console.ReadKey();
         }
 
