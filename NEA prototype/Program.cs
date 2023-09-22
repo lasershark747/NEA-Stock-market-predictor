@@ -73,84 +73,137 @@ namespace trialWithStockMarketAPI
     {
         static void Main(string[] args)
         {
-            //LoadMenu();
-
-            InfoAboutStock infoAboutStock = DoAPIRequest();
-            prices[] valuesOfStock = infoAboutStock.GetPrices();
-            List<(long,Double)> points = new List<(long,Double)> ();
-            foreach(prices pr in valuesOfStock)
-            {
-                points.Add((pr.GetTime(),pr.GetAveragePrice()));
-            }
-
-            Line_Chart GraphOfStockValue = new Line_Chart(points,infoAboutStock.ticker);
-
-
-
+            Console.WriteLine("Welcome to SPAM");
+            Line_Chart GraphOfStockValue = new Line_Chart();
+            int numOfStocks =0;
             while (true)
             {
-                Console.WriteLine("Would you like to add a new stock?\ny or n");
-                if(Console.ReadLine() != "y")
+                try
                 {
-                    break;
+                    Console.WriteLine("How many stocks would you like to graph?");
+                    numOfStocks = int.Parse(Console.ReadLine());
+                    if(numOfStocks < 1)
+                    {
+                        throw new FormatException();
+                    }
+                }
+                catch(System.FormatException)
+                {
+                    Console.WriteLine("Please enter a response in the correct format --> positive int");
                 }
 
-
-                InfoAboutStock infoAboutStock1 = DoAPIRequest();
-                prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
-                List<(long, Double)> points1 = new List<(long, Double)>();
-                foreach (prices pr in valuesOfStock1)
+                break;
+            }
+            for (int i = 0; i < numOfStocks; i++)
+            {
+                if (LoadMenu() == 1)
                 {
-                    points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                    InfoAboutStock infoAboutStock1 = DoAPIRequest();
+                    prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
+                    List<(long, Double)> points1 = new List<(long, Double)>();
+                    foreach (prices pr in valuesOfStock1)
+                    {
+                        points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                    }
+                    GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
                 }
-                GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
+                else
+                {
+                    Console.WriteLine("PLEASE READ THE MENU");
+                }
             }
             GraphOfStockValue.ShowDialog();
             Console.WriteLine("Goodbye");
             Console.ReadKey();
         }
 
-        private static void LoadMenu()
+        private static int LoadMenu()
         {
-           //MENU
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("Would you like to do a new analysis (1) or use an old analysis (2) (Doesn't work atm)");
+                    int response = int.Parse(Console.ReadLine());
+                    if (response != 1 && response != 2)
+                    {
+                        throw new FormatException();
+                    }
+                    return response;
+                }
+                catch (System.FormatException)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Please enter a response in the correct format --> 1 or 2");
+                }
+            }
         }
 
         public static InfoAboutStock DoAPIRequest()
         {
-            string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-            WebRequest request = WebRequest.Create(SetUpRequest());
-            //WebRequest request = WebRequest.Create(exampleAddress);
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            //DO ERROR HANDLING HERE
+            InfoAboutStock infoAboutStock;
+            while (true)
+            {
+                try
+                {
+                    string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                    //WebRequest request = WebRequest.Create(exampleAddress);    
+                    WebRequest request = WebRequest.Create(SetUpRequest());
+                    
+                    HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-            Stream dataStream = response.GetResponseStream();
+                    Stream dataStream = response.GetResponseStream();
 
-            StreamReader reader = new StreamReader(dataStream);
+                    StreamReader reader = new StreamReader(dataStream);
 
-            string responseFromServer = reader.ReadToEnd();
+                    string responseFromServer = reader.ReadToEnd();
 
-            InfoAboutStock infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
+                    infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
 
+                    break;
+                }
+                
+                catch(System.Net.WebException)
+                {
+                    Console.WriteLine("Error in the API reuest please double check that you are entering data in the correct form");
+                }
+                
+            }
             return infoAboutStock;
         }
 
 
         public static string SetUpRequest()
         {
-            string output = "https://api.polygon.io/v2/aggs/ticker/";
-            Console.WriteLine("Please enter the ticker for the stock on the NASDAQ.");
-            output += Console.ReadLine() + "/range/1/";
+            //ADD A WAY TO REMAKE THE API REQUEST IF THE USER ENTERS INFO INCORRECTLY --> WON'T BE DETECTABLE HERE
+            string output;
+            while (true)
+            {
+                output = "https://api.polygon.io/v2/aggs/ticker/";
+                Console.WriteLine("Please enter the ticker for the stock on the NASDAQ.");
+                output += Console.ReadLine() + "/range/1/";
 
-            Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quater, year.");
-            output += Console.ReadLine() + "/";
+                Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quater, year.");
+                output += Console.ReadLine() + "/";
 
-            Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
-            output += Console.ReadLine() + "/";
+                Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                output += Console.ReadLine() + "/";
 
-            Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
-            output += Console.ReadLine() + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-            Console.Clear();
-            Console.WriteLine("The address for the API request is:\n" + output);
+                Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                output += Console.ReadLine() + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                Console.Clear();
+                Console.WriteLine("The API request is: " + output);
+                Console.WriteLine("Is this correct?\ny or n");
+                if (Console.ReadLine() != "y")
+                {
+                    Console.WriteLine("Remaking API url");
+                    System.Threading.Thread.Sleep(1000);
+                    Console.Clear();
+                }
+                else break;
+            }
             return output;
         }
     }
-}
+} 

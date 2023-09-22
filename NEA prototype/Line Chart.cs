@@ -13,18 +13,14 @@ namespace NEA_prototype
 {
     public partial class Line_Chart : Form
     {
-        List<(long, Double)> points;
         List<string> names = new List<string>();
         string[] colours; 
         private Random r = new Random();
 
-        public Line_Chart(List<(long,Double)> values, string name)
+        public Line_Chart()
         {
             InitializeComponent();
-            this.points = values;
-            names.Add(name);
             GenerateColours();
-
         }
 
         private void GenerateColours()
@@ -35,31 +31,16 @@ namespace NEA_prototype
 
         private void Line_Chart_Load(object sender, EventArgs e)
         {
-            chart1.Series.Add(names[0]);
-            chart1.Series[names[0]].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-            chart1.Series[names[0]].Color = System.Drawing.Color.Black;
-            foreach ((long,double) point in points) 
-            {
-                chart1.Series[names[0]].Points.AddXY(point.Item1,point.Item2);
-            }
-            chart1.Series.Add(names[0] + "1");
-            chart1.Series[names[0] + "1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-            chart1.Series[names[0] + "1"].Color = System.Drawing.Color.Black;
-            foreach ((long, double) point in points)
-            {
-                chart1.Series[names[0] + "1"].Points.AddXY(point.Item1, point.Item2);
-            }
+
         }
         public void AddNewSeries(List<(long, Double)> points, string name)
         {
             bool duplicate = false;
             string colour = colours[r.Next(0, colours.Length)];
 
-
-
             foreach (string name2 in names)
             {
-                if (name2.Equals(name))
+                if (name == name2)
                 {
                     Console.WriteLine("A series with the same name already exists.");
                     Console.WriteLine("Would you like to still display the graph? \ny or n");
@@ -69,15 +50,15 @@ namespace NEA_prototype
                     }
                     else
                     {
-                        name = name + 2;
+                        name = name + "2";
                     }
                     break;
-
                 }
 
             }
             if (!duplicate)
             {
+                names.Add(name);
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
                 chart1.Series[name].Color = System.Drawing.Color.FromName(colour);
