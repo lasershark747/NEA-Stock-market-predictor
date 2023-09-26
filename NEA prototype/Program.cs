@@ -56,8 +56,8 @@ namespace trialWithStockMarketAPI
         //l is the lowest price in the time period
         //n is the number of transactions in the time period
         //o is the open price
-        //t is the time stamp for the start of the window
-        // is the trading volume in the time period
+        //t is the time stamp for the start of the window in UNIX time --> milliseconds 
+        //v is the trading volume in the time period
         //vw is the wolume weight average price (this is the main peice of data that i'll be using)
 
         public double GetAveragePrice()
@@ -75,7 +75,7 @@ namespace trialWithStockMarketAPI
         {
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
-            int numOfStocks =0;
+            int numOfStocks=0;
             while (true)
             {
                 try
@@ -96,9 +96,22 @@ namespace trialWithStockMarketAPI
             }
             for (int i = 0; i < numOfStocks; i++)
             {
-                if (LoadMenu() == 1)
+                Console.WriteLine(i);
+                int choice = LoadMenu();
+                if (choice == 1)
                 {
-                    InfoAboutStock infoAboutStock1 = DoAPIRequest();
+                    InfoAboutStock infoAboutStock1 = DoAPIRequest(1);
+                    prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
+                    List<(long, Double)> points1 = new List<(long, Double)>();
+                    foreach (prices pr in valuesOfStock1)
+                    {
+                        points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                    }
+                    GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
+                }
+                else if (choice == 3)
+                {
+                    InfoAboutStock infoAboutStock1 = DoAPIRequest(2);
                     prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
                     List<(long, Double)> points1 = new List<(long, Double)>();
                     foreach (prices pr in valuesOfStock1)
@@ -112,7 +125,37 @@ namespace trialWithStockMarketAPI
                     Console.WriteLine("PLEASE READ THE MENU");
                 }
             }
-            GraphOfStockValue.ShowDialog();
+            int howToDisplay;
+            while(true)
+            {
+                try
+                {
+                    Console.WriteLine("How would you like to get the data?\nJust graph - 1\nJust table - 2\nBoth - 3");
+                    howToDisplay = int.Parse(Console.ReadLine());
+                    break;
+                }
+                catch(System.FormatException)
+                {
+                    Console.Clear();
+                    Console.WriteLine("Please enter a response in the correct format --> 1 or 2 or 3");
+                }
+
+            }
+
+
+
+            if (howToDisplay == 1)
+            {
+                GraphOfStockValue.ShowDialog();
+            }
+            else if(howToDisplay == 2)
+            {
+                Console.WriteLine(ConvertToUNIXMilli());
+            }
+            else
+            {
+                GraphOfStockValue.ShowDialog();
+            }
             Console.WriteLine("Goodbye");
             Console.ReadKey();
         }
@@ -125,7 +168,7 @@ namespace trialWithStockMarketAPI
                 {
                     Console.WriteLine("Would you like to do a new analysis (1) or use an old analysis (2) (Doesn't work atm)");
                     int response = int.Parse(Console.ReadLine());
-                    if (response != 1 && response != 2)
+                    if (response != 1 && response != 2 &&  response!= 3)
                     {
                         throw new FormatException();
                     }
@@ -139,7 +182,7 @@ namespace trialWithStockMarketAPI
             }
         }
 
-        public static InfoAboutStock DoAPIRequest()
+        public static InfoAboutStock DoAPIRequest(int choice)
         {
             //DO ERROR HANDLING HERE
             InfoAboutStock infoAboutStock;
@@ -147,9 +190,16 @@ namespace trialWithStockMarketAPI
             {
                 try
                 {
-                    string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-                    //WebRequest request = WebRequest.Create(exampleAddress);    
-                    WebRequest request = WebRequest.Create(SetUpRequest());
+                    WebRequest request;
+                    if (choice == 1)
+                    {
+                        request = WebRequest.Create(SetUpRequest());
+                    }
+                    else
+                    {
+                        string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                        request = WebRequest.Create(exampleAddress);
+                    }
                     
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
@@ -204,6 +254,42 @@ namespace trialWithStockMarketAPI
                 else break;
             }
             return output;
+        }
+
+        public static long ConvertToUNIXMilli()
+        {
+            long unix = 0;
+            string[] seperated;
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("Please enter the date in the form yyyy-mm-dd");
+                    string yyyymmdd = Console.ReadLine();
+                    seperated = yyyymmdd.Split('-');
+                    if(seperated.Length != 3) 
+                    {
+                        throw new FormatException();
+                    }
+                    break;
+                }
+                catch(System.FormatException) 
+                {
+                    Console.WriteLine("Please enter a response in the correct format --> yyyy-mm-dd");
+                }
+            }
+            unix += (long.Parse(seperated[0]) - 1970) * 365 * 24 * 60 * 60 * 1000;
+            unix += long.Parse(seperated[2]) * 24 * 60 * 60 * 1000;
+            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            for(int i = 0; i < int.Parse(seperated[1])-1; i++)
+            {
+                unix += daysInMonth[i] * 24 * 60 * 60 * 1000;
+            }
+            Console.WriteLine((long.Parse(seperated[0]) - 1972) / 4);
+            unix += ((long.Parse(seperated[0]) - 1972) / 4) * 24 * 60 * 60 * 1000;
+
+
+            return unix;
         }
     }
 } 

@@ -25,7 +25,7 @@ namespace NEA_prototype
 
         private void GenerateColours()
         {
-            string colourList = "AliceBlue.LightSalmon.AntiqueWhite.LightSeaGreen.Aqua.LightSkyBlue.Aquamarine.LightSlateGray.Azure.LightSteelBlue.Beige.LightYellow.Bisque.Lime.Black.LimeGreen.BlanchedAlmond.Linen.Blue.Magenta.BlueViolet.Maroon.Brown.MediumAquamarine.BurlyWood.MediumBlue.CadetBlue.MediumOrchid.Chartreuse.MediumPurple.Chocolate.MediumSeaGreen.Coral.MediumSlateBlue.CornflowerBlue.MediumSpringGreen.Cornsilk.MediumTurquoise.Crimson.MediumVioletRed.Cyan.MidnightBlue.DarkBlue.MintCream.DarkCyan.MistyRose.DarkGoldenrod.Moccasin.DarkGray.NavajoWhit.DarkGreen.Navy.DarkKhaki.OldLace.DarkMagena.Olive.DarkOliveGreen.OliveDrab.DarkOrange.Orange.DarkOrchid.OrangeRed.DarkRed.Orchid.DarkSalmon.PaleGoldenrod.DarkSeaGreen.PaleGreen.DarkSlateBlue.PaleTurquoise.DarkSlateGray.PaleVioletRed.DarkTurquoise.PapayaWhip.DarkViolet.PeachPuff.DeepPink.Peru.DeepSkyBlue.Pink.DimGray.Plum.DodgerBlue.PowderBlue.Firebrick.Purple.FloralWhite.Red.ForestGreen.RosyBrown.Fuschia.RoyalBlue.Gainsboro.SaddleBrown.GhostWhite.Salmon.Gold.SandyBrown.Goldenrod.SeaGreen.Gray.Seashell.Green.Sienna.GreenYellow.Silver.Honeydew.SkyBlue.HotPink.SlateBlue.IndianRed.SlateGray.Indigo.Snow.Ivory.SpringGreen.Khaki.SteelBlue.Lavender.Tan.LavenderBlush\r\n.Teal.LawnGreen.Thistle.LemonChiffon.Tomato.LightBlue.Turquoise.LightCoral.Violet.LightCyan.Wheat.LightGoldenrodYellow.White.LightGreen.WhiteSmoke.LightGray.Yellow.LightPink.YellowGreen";
+            string colourList = "LightSalmon.LightSeaGreen.Aqua.LightSkyBlue.Aquamarine.LightSlateGray.LightSteelBlue.Lime.Black.LimeGreen.Blue.Magenta.BlueViolet.Maroon.Brown.MediumAquamarine.MediumBlue.CadetBlue.MediumOrchid.Chartreuse.MediumPurple.Chocolate.MediumSeaGreen.Coral.MediumSlateBlue.CornflowerBlue.MediumSpringGreen.MediumTurquoise.Crimson.MediumVioletRed.Cyan.MidnightBlue.DarkBlue.DarkCyan.DarkGoldenrod.DarkGreen.Navy.DarkMagena.Olive.DarkOliveGreen.OliveDrab.Orange.DarkOrchid.OrangeRed.DarkRed.Orchid.PaleGoldenrod.DarkSeaGreen.PaleGreen.DarkSlateBlue.PaleTurquoise.DarkSlateGray.PaleVioletRed.DarkTurquoise.DarkViolet.DeepPink.Peru.DeepSkyBlue.DimGray.Plum.DodgerBlue.PowderBlue.Firebrick.Purple.Red.ForestGreen.RosyBrown.Fuschia.RoyalBlue.SaddleBrown.Salmon.Gold.SandyBrown.Goldenrod.SeaGreen.Gray.Green.Sienna.GreenYellow.Silver.SkyBlue.HotPink.SlateBlue.IndianRed.SlateGray.Indigo.SpringGreen.Khaki.SteelBlue.Tan.Teal.LawnGreen.Tomato.Turquoise.LightCoral.Violet.LightGreen.LightPink.YellowGreen";
             colours = colourList.Split('.');
         }
 
@@ -60,15 +60,15 @@ namespace NEA_prototype
             {
                 names.Add(name);
                 chart1.Series.Add(name);
-                chart1.Series[name].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Spline;
-                chart1.Series[name].Color = System.Drawing.Color.FromName(colour);
+                chart1.Series[name].ChartType = SeriesChartType.Spline;
+                chart1.Series[name].Color = Color.FromName(colour);
                 foreach ((long, double) point in points)
                 {
                     chart1.Series[name].Points.AddXY(point.Item1, point.Item2);
                 }
                 chart1.Series.Add(name + "1");
-                chart1.Series[name + "1"].ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Point;
-                chart1.Series[name + "1"].Color = System.Drawing.Color.FromName(colour);
+                chart1.Series[name + "1"].ChartType = SeriesChartType.Point;
+                chart1.Series[name + "1"].Color = Color.FromName(colour);
                 foreach ((long, double) point in points)
                 {
                     chart1.Series[name + "1"].Points.AddXY(point.Item1, point.Item2);
