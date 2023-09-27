@@ -96,7 +96,6 @@ namespace trialWithStockMarketAPI
             }
             for (int i = 0; i < numOfStocks; i++)
             {
-                Console.WriteLine(i);
                 int choice = LoadMenu();
                 if (choice == 1)
                 {
@@ -141,8 +140,6 @@ namespace trialWithStockMarketAPI
                 }
 
             }
-
-
 
             if (howToDisplay == 1)
             {
@@ -278,15 +275,19 @@ namespace trialWithStockMarketAPI
                     Console.WriteLine("Please enter a response in the correct format --> yyyy-mm-dd");
                 }
             }
-            unix += (long.Parse(seperated[0]) - 1970) * 365 * 24 * 60 * 60 * 1000;
-            unix += long.Parse(seperated[2]) * 24 * 60 * 60 * 1000;
+            unix += (long.Parse(seperated[0]) - 1970) * 365 * 24 * 60 * 60;
+            Console.WriteLine(unix);
+            unix += long.Parse(seperated[2]) * 24 * 60 * 60;
+            Console.WriteLine(unix);
             long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
             for(int i = 0; i < int.Parse(seperated[1])-1; i++)
             {
-                unix += daysInMonth[i] * 24 * 60 * 60 * 1000;
+                unix += daysInMonth[i] * 24 * 60 * 60;
+                Console.WriteLine(i);
             }
             Console.WriteLine((long.Parse(seperated[0]) - 1972) / 4);
-            unix += ((long.Parse(seperated[0]) - 1972) / 4) * 24 * 60 * 60 * 1000;
+            unix += ((long.Parse(seperated[0]) - 1972) / 4) * 24 * 60 * 60;
+            unix -= 3600;
 
 
             return unix;
