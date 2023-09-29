@@ -75,24 +75,23 @@ namespace trialWithStockMarketAPI
         {
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
-            int numOfStocks=0;
+            int numOfStocks = 0;
             while (true)
             {
                 try
                 {
                     Console.WriteLine("How many stocks would you like to graph?");
                     numOfStocks = int.Parse(Console.ReadLine());
-                    if(numOfStocks < 1)
+                    if (numOfStocks < 1)
                     {
                         throw new FormatException();
                     }
+                    break;
                 }
-                catch(System.FormatException)
+                catch (System.FormatException)
                 {
                     Console.WriteLine("Please enter a response in the correct format --> positive int");
                 }
-
-                break;
             }
             for (int i = 0; i < numOfStocks; i++)
             {
@@ -125,7 +124,7 @@ namespace trialWithStockMarketAPI
                 }
             }
             int howToDisplay;
-            while(true)
+            while (true)
             {
                 try
                 {
@@ -133,7 +132,7 @@ namespace trialWithStockMarketAPI
                     howToDisplay = int.Parse(Console.ReadLine());
                     break;
                 }
-                catch(System.FormatException)
+                catch (System.FormatException)
                 {
                     Console.Clear();
                     Console.WriteLine("Please enter a response in the correct format --> 1 or 2 or 3");
@@ -145,9 +144,12 @@ namespace trialWithStockMarketAPI
             {
                 GraphOfStockValue.ShowDialog();
             }
-            else if(howToDisplay == 2)
+            else if (howToDisplay == 2)
             {
-                Console.WriteLine(ConvertToUNIXMilli());
+                //long unixTime = ConvertToUNIXMilli();
+                //Console.WriteLine(unixTime);
+                long unixTime = 0;
+                Console.WriteLine(binarySearch(unixTime));
             }
             else
             {
@@ -157,7 +159,7 @@ namespace trialWithStockMarketAPI
             Console.ReadKey();
         }
 
-        private static int LoadMenu()
+        public static int LoadMenu()
         {
             while (true)
             {
@@ -165,7 +167,7 @@ namespace trialWithStockMarketAPI
                 {
                     Console.WriteLine("Would you like to do a new analysis (1) or use an old analysis (2) (Doesn't work atm)");
                     int response = int.Parse(Console.ReadLine());
-                    if (response != 1 && response != 2 &&  response!= 3)
+                    if (response != 1 && response != 2 && response != 3)
                     {
                         throw new FormatException();
                     }
@@ -194,10 +196,10 @@ namespace trialWithStockMarketAPI
                     }
                     else
                     {
-                        string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/AAPL/range/1/day/2022-01-01/2022-02-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                        string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/NVDA/range/1/day/2022-01-01/2023-09-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
                         request = WebRequest.Create(exampleAddress);
                     }
-                    
+
                     HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
                     Stream dataStream = response.GetResponseStream();
@@ -210,12 +212,12 @@ namespace trialWithStockMarketAPI
 
                     break;
                 }
-                
-                catch(System.Net.WebException)
+
+                catch (System.Net.WebException)
                 {
                     Console.WriteLine("Error in the API reuest please double check that you are entering data in the correct form");
                 }
-                
+
             }
             return infoAboutStock;
         }
@@ -242,13 +244,14 @@ namespace trialWithStockMarketAPI
                 Console.Clear();
                 Console.WriteLine("The API request is: " + output);
                 Console.WriteLine("Is this correct?\ny or n");
-                if (Console.ReadLine() != "y")
+                if (Console.ReadLine() == "n")
+                    break;
+                else
                 {
                     Console.WriteLine("Remaking API url");
                     System.Threading.Thread.Sleep(1000);
                     Console.Clear();
                 }
-                else break;
             }
             return output;
         }
@@ -264,33 +267,68 @@ namespace trialWithStockMarketAPI
                     Console.WriteLine("Please enter the date in the form yyyy-mm-dd");
                     string yyyymmdd = Console.ReadLine();
                     seperated = yyyymmdd.Split('-');
-                    if(seperated.Length != 3) 
+                    if (seperated.Length != 3)
                     {
                         throw new FormatException();
                     }
                     break;
                 }
-                catch(System.FormatException) 
+                catch (System.FormatException)
                 {
                     Console.WriteLine("Please enter a response in the correct format --> yyyy-mm-dd");
                 }
             }
-            unix += (long.Parse(seperated[0]) - 1970) * 365 * 24 * 60 * 60;
-            Console.WriteLine(unix);
-            unix += long.Parse(seperated[2]) * 24 * 60 * 60;
-            Console.WriteLine(unix);
-            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-            for(int i = 0; i < int.Parse(seperated[1])-1; i++)
-            {
-                unix += daysInMonth[i] * 24 * 60 * 60;
-                Console.WriteLine(i);
-            }
-            Console.WriteLine((long.Parse(seperated[0]) - 1972) / 4);
-            unix += ((long.Parse(seperated[0]) - 1972) / 4) * 24 * 60 * 60;
-            unix -= 3600;
 
+            for (int i = 1971; i <= int.Parse(seperated[0]); i++)
+            {
+                if (i % 4 == 0) unix += 86400 * 366;
+
+                else unix += 86400 * 365;
+            }
+            unix += (long.Parse(seperated[2]) - 1) * 86400;
+            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            for (int i = 0; i < int.Parse(seperated[1]) - 1; i++)
+            {
+                unix += daysInMonth[i] * 86400;
+            }
 
             return unix;
+        }
+
+        public static (long, double) binarySearch(long unixTime)
+        {
+            Random r = new Random();
+            int number =53;
+            List<(long, double)> trialList = new List<(long, double)>();
+            for (int i = 0; i < 100; i++)
+            {
+                trialList.Add((i*3,i));
+            }
+            trialList.Sort();
+            int min = 0;
+            int max = trialList.Count - 1;
+            while (true)
+            {
+                int midPoint = (min + max) / 2;
+                if (number == trialList[midPoint].Item1 || max- min == 1)
+                {
+                    for (int i = min; i < max; i++) Console.WriteLine(trialList[i].Item1);
+                    return trialList[midPoint];
+                }
+                else if (number > trialList[midPoint].Item1)
+                {
+                    min = midPoint;
+                    Console.WriteLine(max - min);
+
+                }
+                else
+                {
+                    max = midPoint;
+                    Console.WriteLine(max-min);
+                }
+             
+            }
+
         }
     }
 } 
