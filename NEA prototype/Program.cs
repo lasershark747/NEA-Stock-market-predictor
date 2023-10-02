@@ -76,6 +76,8 @@ namespace trialWithStockMarketAPI
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
             int numOfStocks = 0;
+            List<string> stockNames = new List<string>();
+            List<List<(long, Double)>> stockPrices = new List<List<(long, Double)>>();
             while (true)
             {
                 try
@@ -106,6 +108,8 @@ namespace trialWithStockMarketAPI
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
                     }
                     GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
+                    stockNames.Add(infoAboutStock1.ticker);
+                    stockPrices.Add(points1);
                 }
                 else if (choice == 3)
                 {
@@ -117,6 +121,8 @@ namespace trialWithStockMarketAPI
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
                     }
                     GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
+                    stockNames.Add(infoAboutStock1.ticker);
+                    stockPrices.Add(points1);
                 }
                 else
                 {
@@ -146,13 +152,28 @@ namespace trialWithStockMarketAPI
             }
             else if (howToDisplay == 2)
             {
-                //long unixTime = ConvertToUNIXMilli();
-                //Console.WriteLine(unixTime);
-                long unixTime = 0;
-                Console.WriteLine(binarySearch(unixTime));
+                long unixTime = ConvertToUNIXMilli();
+                Console.WriteLine(unixTime);
+                Console.WriteLine(binarySearch(unixTime, stockPrices[0]));
             }
             else
             {
+                while (true)
+                {
+                    long unixTime = ConvertToUNIXMilli();
+                    Console.WriteLine(unixTime);
+                    (long, double) point = binarySearch(unixTime, stockPrices[0]);
+                    Console.WriteLine(point);
+                    Console.ReadKey();
+                    //NEED to design table and then format it correctly and allow for the user to add values to it or change which values are shown
+                }
+                /*
+                List<(long,Double)> temp = new List<(long,Double)> ();
+                temp.Add(point);
+                GraphOfStockValue.AddNewSeries(temp, "clostest");
+                */
+
+
                 GraphOfStockValue.ShowDialog();
             }
             Console.WriteLine("Goodbye");
@@ -215,7 +236,9 @@ namespace trialWithStockMarketAPI
 
                 catch (System.Net.WebException)
                 {
-                    Console.WriteLine("Error in the API reuest please double check that you are entering data in the correct form");
+                    //add any common errors for the API request in here 
+                    Console.Clear();
+                    Console.WriteLine("Error in the API request\nSome possible errors are:\nEntered data incorrectly\nStock isn't on the NASDAQ\nDate inputed isn't within correct margin");
                 }
 
             }
@@ -241,12 +264,12 @@ namespace trialWithStockMarketAPI
 
                 Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
                 output += Console.ReadLine() + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
-                Console.Clear();
                 Console.WriteLine("The API request is: " + output);
                 Console.WriteLine("Is this correct?\ny or n");
-                if (Console.ReadLine() == "n")
+                string response = Console.ReadLine();
+                if (response == "y")
                     break;
-                else
+                else if(response == "n")
                 {
                     Console.WriteLine("Remaking API url");
                     System.Threading.Thread.Sleep(1000);
@@ -292,41 +315,45 @@ namespace trialWithStockMarketAPI
                 unix += daysInMonth[i] * 86400;
             }
 
-            return unix;
+            return (unix+4*60*60)*1000;
         }
 
-        public static (long, double) binarySearch(long unixTime)
+        public static (long, double) binarySearch(long unixTime, List<(long,double)> stockValues)
         {
             Random r = new Random();
-            int number =53;
-            List<(long, double)> trialList = new List<(long, double)>();
-            for (int i = 0; i < 100; i++)
-            {
-                trialList.Add((i*3,i));
-            }
-            trialList.Sort();
+            long number =unixTime;
+            List<(long, double)> trialList = stockValues;
             int min = 0;
             int max = trialList.Count - 1;
+            for (int i = 0; i < trialList.Count; i++)
+            {
+                if (trialList[i].Item1 == number)
+                {
+                    Console.WriteLine(i);
+                }
+            }
             while (true)
             {
                 int midPoint = (min + max) / 2;
-                if (number == trialList[midPoint].Item1 || max- min == 1)
+                if (number == trialList[midPoint].Item1)
                 {
-                    for (int i = min; i < max; i++) Console.WriteLine(trialList[i].Item1);
                     return trialList[midPoint];
+                }
+                else if(min >= max)
+                {
+                    Console.WriteLine(trialList[max-1]);
+                    return trialList[max];
                 }
                 else if (number > trialList[midPoint].Item1)
                 {
-                    min = midPoint;
-                    Console.WriteLine(max - min);
-
+                    min = midPoint+1;
                 }
-                else
+                else if(number < trialList[midPoint].Item1)
                 {
-                    max = midPoint;
-                    Console.WriteLine(max-min);
+                    max = midPoint-1;
                 }
-             
+                else Console.WriteLine("error");
+
             }
 
         }
