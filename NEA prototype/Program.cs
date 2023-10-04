@@ -158,20 +158,22 @@ namespace trialWithStockMarketAPI
             }
             else
             {
+                (long, double) point;
                 while (true)
                 {
                     long unixTime = ConvertToUNIXMilli();
                     Console.WriteLine(unixTime);
-                    (long, double) point = binarySearch(unixTime, stockPrices[0]);
+                    point = binarySearch(unixTime, stockPrices[0]);
                     Console.WriteLine(point);
                     Console.ReadKey();
                     //NEED to design table and then format it correctly and allow for the user to add values to it or change which values are shown
+                    break;
                 }
-                /*
+                
                 List<(long,Double)> temp = new List<(long,Double)> ();
                 temp.Add(point);
                 GraphOfStockValue.AddNewSeries(temp, "clostest");
-                */
+                
 
 
                 GraphOfStockValue.ShowDialog();
@@ -179,7 +181,6 @@ namespace trialWithStockMarketAPI
             Console.WriteLine("Goodbye");
             Console.ReadKey();
         }
-
         public static int LoadMenu()
         {
             while (true)
@@ -325,13 +326,6 @@ namespace trialWithStockMarketAPI
             List<(long, double)> trialList = stockValues;
             int min = 0;
             int max = trialList.Count - 1;
-            for (int i = 0; i < trialList.Count; i++)
-            {
-                if (trialList[i].Item1 == number)
-                {
-                    Console.WriteLine(i);
-                }
-            }
             while (true)
             {
                 int midPoint = (min + max) / 2;
@@ -341,7 +335,6 @@ namespace trialWithStockMarketAPI
                 }
                 else if(min >= max)
                 {
-                    Console.WriteLine(trialList[max-1]);
                     return trialList[max];
                 }
                 else if (number > trialList[midPoint].Item1)
