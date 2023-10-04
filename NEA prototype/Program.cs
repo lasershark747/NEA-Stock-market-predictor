@@ -173,8 +173,6 @@ namespace trialWithStockMarketAPI
                 List<(long,Double)> temp = new List<(long,Double)> ();
                 temp.Add(point);
                 GraphOfStockValue.AddNewSeries(temp, "clostest");
-                Console.WriteLine("This is completly stupid");
-                Console.WriteLine("FUCK OFF VISUAL STUDIO");
 
 
 
