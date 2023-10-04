@@ -174,6 +174,7 @@ namespace trialWithStockMarketAPI
                 temp.Add(point);
                 GraphOfStockValue.AddNewSeries(temp, "clostest");
                 Console.WriteLine("This is completly stupid");
+                Console.WriteLine("FUCK OFF VISUAL STUDIO");
 
 
 
