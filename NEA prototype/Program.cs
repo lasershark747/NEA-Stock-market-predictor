@@ -73,6 +73,7 @@ namespace trialWithStockMarketAPI
     {
         static void Main(string[] args)
         {
+            Console.WriteLine(ConvertToyyyymmdd(980049600000));
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
             int numOfStocks = 0;
@@ -318,10 +319,65 @@ namespace trialWithStockMarketAPI
 
             return (unix+4*60*60)*1000;
         }
+        public static string ConvertToyyyymmdd(long unixTime)
+        {
+            unixTime /= 1000;
+            unixTime -= 4 * 60 * 60;
+            string date = "";
+            int year = 1970;
+            int month = 1;
+            int day = 1;
+            int count = 2;
+            while(true)
+            {
+                if(count%4==0)
+                {
+                    unixTime -= 86400 * 366;
+                    year++;
+                    count++;
+                }
+                else
+                {
+                    unixTime -= 86400 * 365;
+                    year++;
+                    count++;
+                }
+                if(unixTime<0)
+                {
+                    year--;
+                    if (count % 4 == 1)
+                        unixTime += 86400 * 366;
+                    else
+                        unixTime += 86400 * 365;
+                    date += year + "-";
+                    break;
+                }
+
+
+            }
+            // do month
+
+
+            while(true)
+            {
+                unixTime -= 24 * 3600;
+                day++;
+
+                if(unixTime<=0)
+                {
+                    date += day;
+                    break;
+                }
+            }
+
+
+
+
+            return date;
+        }
 
         public static (long, double) binarySearch(long unixTime, List<(long,double)> stockValues)
         {
-            Random r = new Random();
             long number =unixTime;
             List<(long, double)> trialList = stockValues;
             int min = 0;
@@ -335,7 +391,11 @@ namespace trialWithStockMarketAPI
                 }
                 else if(min >= max)
                 {
-                    return trialList[max];
+                    if (max < 0)
+                        return trialList[min];
+
+                    else
+                        return trialList[max];
                 }
                 else if (number > trialList[midPoint].Item1)
                 {
@@ -345,8 +405,8 @@ namespace trialWithStockMarketAPI
                 {
                     max = midPoint-1;
                 }
-                else Console.WriteLine("error");
 
+                
             }
 
         }
