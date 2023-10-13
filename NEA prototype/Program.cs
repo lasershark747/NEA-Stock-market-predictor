@@ -73,7 +73,6 @@ namespace trialWithStockMarketAPI
     {
         static void Main(string[] args)
         {
-            Console.WriteLine(ConvertToyyyymmdd(980049600000));
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
             int numOfStocks = 0;
@@ -153,30 +152,14 @@ namespace trialWithStockMarketAPI
             }
             else if (howToDisplay == 2)
             {
-                long unixTime = ConvertToUNIXMilli();
-                Console.WriteLine(unixTime);
-                Console.WriteLine(binarySearch(unixTime, stockPrices[0]));
+                DisplayTable(stockPrices[0]);
+                Console.ReadKey();
+
             }
             else
             {
-                (long, double) point;
-                while (true)
-                {
-                    long unixTime = ConvertToUNIXMilli();
-                    Console.WriteLine(unixTime);
-                    point = binarySearch(unixTime, stockPrices[0]);
-                    Console.WriteLine(point);
-                    Console.ReadKey();
-                    //NEED to design table and then format it correctly and allow for the user to add values to it or change which values are shown
-                    break;
-                }
-                
-                List<(long,Double)> temp = new List<(long,Double)> ();
-                temp.Add(point);
-                GraphOfStockValue.AddNewSeries(temp, "clostest");
-
-
-
+                DisplayTable(stockPrices[0]);
+                Console.ReadKey();
                 GraphOfStockValue.ShowDialog();
             }
             Console.WriteLine("Goodbye");
@@ -246,8 +229,6 @@ namespace trialWithStockMarketAPI
             }
             return infoAboutStock;
         }
-
-
         public static string SetUpRequest()
         {
             //ADD A WAY TO REMAKE THE API REQUEST IF THE USER ENTERS INFO INCORRECTLY --> WON'T BE DETECTABLE HERE
@@ -326,7 +307,7 @@ namespace trialWithStockMarketAPI
             string date = "";
             int year = 1970;
             int month = 1;
-            int day = 1;
+            int day = 0;
             int count = 2;
             while(true)
             {
@@ -352,25 +333,36 @@ namespace trialWithStockMarketAPI
                     date += year + "-";
                     break;
                 }
-
-
             }
-            // do month
 
-
+            count = 0;
+            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
             while(true)
+            {
+                if (unixTime - daysInMonth[count]*86400 < 0)
+                {
+                    break;
+                }
+                else
+                {
+                    unixTime -= daysInMonth[count] * 86400;
+                    count++;
+                    month++;
+                }
+            }
+            if(month >=10)
+                date += month + "-";
+            else
+                date += "0" + month + "-";
+            while (unixTime > 0)
             {
                 unixTime -= 24 * 3600;
                 day++;
-
-                if(unixTime<=0)
-                {
-                    date += day;
-                    break;
-                }
             }
-
-
+            if (day >= 10)
+                date += day;
+            else
+                date += "0" + day;
 
 
             return date;
@@ -409,6 +401,29 @@ namespace trialWithStockMarketAPI
                 
             }
 
+        }
+
+
+        public static void DisplayTable(List<(long,Double)> prices)
+        {
+            Console.Clear();
+            Console.Write("Date");
+            Console.SetCursorPosition(13, 0);
+            Console.Write("| Price");
+            int count = 1;
+            for (int i = 0; i < prices.Count; i+= prices.Count / 20)
+            {
+                Console.SetCursorPosition(0, count);
+                Console.Write(ConvertToyyyymmdd(prices[i].Item1));
+                Console.SetCursorPosition(13, count);
+                string buffer = Math.Round(prices[i].Item2, 2).ToString();
+                if (buffer[buffer.Length-2] =='.')
+                    Console.Write("| " + buffer + "0");
+                else
+                    Console.Write("| " + buffer); 
+                count++;
+            }
+            Console.WriteLine();
         }
     }
 } 
