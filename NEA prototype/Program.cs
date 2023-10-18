@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using static System.Net.WebRequestMethods;
 using NEA_prototype;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 /*
 curve needs to be in form x^0 --> x^n rather then x^n --> x^0
 
@@ -165,6 +166,7 @@ namespace trialWithStockMarketAPI
             Console.WriteLine("Goodbye");
             Console.ReadKey();
         }
+       
         public static int LoadMenu()
         {
             while (true)
@@ -242,11 +244,34 @@ namespace trialWithStockMarketAPI
                 Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quater, year.");
                 output += Console.ReadLine() + "/";
 
-                Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
-                output += Console.ReadLine() + "/";
-
-                Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
-                output += Console.ReadLine() + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                string regEx = "\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d";
+                while (true)
+                {
+                    Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                    string buffer = Console.ReadLine();
+                    if (Regex.IsMatch(buffer, regEx))
+                    {
+                        output += buffer + "/";
+                        break;
+                    }
+                    else
+                        Console.WriteLine("date in incorrect format");
+                }
+                while (true)
+                {
+                    Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                    string buffer = Console.ReadLine();
+                    if (Regex.IsMatch(buffer, regEx))
+                    {
+                        output += buffer + "/";
+                        break;
+                    }
+                    else
+                        Console.WriteLine("date in incorrect format");
+                }
+                output +="?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+               
+                
                 Console.WriteLine("The API request is: " + output);
                 Console.WriteLine("Is this correct?\ny or n");
                 string response = Console.ReadLine();
@@ -261,6 +286,8 @@ namespace trialWithStockMarketAPI
             }
             return output;
         }
+
+
 
         public static long ConvertToUNIXMilli()
         {
@@ -368,6 +395,8 @@ namespace trialWithStockMarketAPI
             return date;
         }
 
+
+
         public static (long, double) binarySearch(long unixTime, List<(long,double)> stockValues)
         {
             long number =unixTime;
@@ -404,26 +433,51 @@ namespace trialWithStockMarketAPI
         }
 
 
-        public static void DisplayTable(List<(long,Double)> prices)
+        public static void DisplayTable(List<(long,double)> prices)
         {
+            Console.Clear();
+            List<(long, double)> userDefinedDates = new List<(long, double)>();
+            while(true)
+            {
+                Console.Write("Would you like to find the price for a certain day? (y/n)");
+                if (Console.ReadLine() == "y")
+                {
+                    userDefinedDates.Add(binarySearch(ConvertToUNIXMilli(), prices)); 
+                }
+                else
+                    break;
+            }
+
             Console.Clear();
             Console.Write("Date");
             Console.SetCursorPosition(13, 0);
             Console.Write("| Price");
             int count = 1;
-            for (int i = 0; i < prices.Count; i+= prices.Count / 20)
+            for (int i = 0; i < prices.Count; i += prices.Count / 20)
             {
                 Console.SetCursorPosition(0, count);
                 Console.Write(ConvertToyyyymmdd(prices[i].Item1));
                 Console.SetCursorPosition(13, count);
                 string buffer = Math.Round(prices[i].Item2, 2).ToString();
-                if (buffer[buffer.Length-2] =='.')
+                if (buffer[buffer.Length - 2] == '.')
                     Console.Write("| " + buffer + "0");
                 else
-                    Console.Write("| " + buffer); 
+                    Console.Write("| " + buffer);
                 count++;
             }
-            Console.WriteLine();
+            for (int i = 0; i < userDefinedDates.Count; i ++)
+            {
+                Console.SetCursorPosition(0, count);
+                Console.Write(ConvertToyyyymmdd(userDefinedDates[i].Item1));
+                Console.SetCursorPosition(13, count);
+                string buffer = Math.Round(userDefinedDates[i].Item2, 2).ToString();
+                if (buffer[buffer.Length - 2] == '.')
+                    Console.Write("| " + buffer + "0");
+                else
+                    Console.Write("| " + buffer);
+                count++;
+            }
+
         }
     }
 } 
