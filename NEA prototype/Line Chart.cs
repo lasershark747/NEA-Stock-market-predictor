@@ -4,10 +4,13 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
+using System.Xml.Linq;
+using trialWithStockMarketAPI;
 
 namespace NEA_prototype
 {
@@ -74,6 +77,89 @@ namespace NEA_prototype
                     chart1.Series[name + "1"].Points.AddXY(point.Item1, point.Item2);
                 }
             }
+        }
+
+        public void AddRegressionCurve(int[] equation, long startDate, string nameOfStock)
+        {
+            //Need to input: equation of the curve, start of regression, name of stock
+            bool duplicate = false;
+            string colour = colours[r.Next(0, colours.Length)];
+            string name = nameOfStock + " prediction";
+            foreach (string name2 in names)
+            {
+                if (name == name2)
+                {
+                    Console.WriteLine("A series with the same name already exists.");
+                    Console.WriteLine("Would you like to still display the graph? \ny or n");
+                    if (Console.ReadLine() == "n")
+                    {
+                        duplicate = true;
+                    }
+                    else
+                    {
+                        name = name + "2";
+                    }
+                    break;
+                }
+
+            }
+            if (!duplicate)
+            {
+                names.Add(name);
+                chart1.Series.Add(name);
+                chart1.Series[name].ChartType = SeriesChartType.Line;
+                chart1.Series[name].Color = Color.FromName(colour);
+                Console.WriteLine("Now choosing date that you want to see the prediction up to.");
+                long endDate = ConvertToUNIXMilli();
+                for (long i = startDate; i < endDate; i+=86400)
+                {
+                    double predictiedValue = 0;
+                    for(int j = 0; j < equation.Length; j++)
+                    {
+                        predictiedValue += equation[j] * Math.Pow(i, j);
+                    }
+                    chart1.Series[name + "1"].Points.AddXY(i, predictiedValue);
+                }
+            }
+        }
+
+        public static long ConvertToUNIXMilli()
+        {
+            long unix = 0;
+            string[] seperated;
+            while (true)
+            {
+                try
+                {
+                    Console.WriteLine("Please enter the date in the form yyyy-mm-dd");
+                    string yyyymmdd = Console.ReadLine();
+                    seperated = yyyymmdd.Split('-');
+                    if (seperated.Length != 3)
+                    {
+                        throw new FormatException();
+                    }
+                    break;
+                }
+                catch (System.FormatException)
+                {
+                    Console.WriteLine("Please enter a response in the correct format --> yyyy-mm-dd");
+                }
+            }
+
+            for (int i = 1971; i <= int.Parse(seperated[0]); i++)
+            {
+                if (i % 4 == 0) unix += 86400 * 366;
+
+                else unix += 86400 * 365;
+            }
+            unix += (long.Parse(seperated[2]) - 1) * 86400;
+            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+            for (int i = 0; i < int.Parse(seperated[1]) - 1; i++)
+            {
+                unix += daysInMonth[i] * 86400;
+            }
+
+            return (unix + 4 * 60 * 60) * 1000;
         }
     }
 }

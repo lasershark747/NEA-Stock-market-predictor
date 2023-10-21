@@ -477,6 +477,7 @@ namespace trialWithStockMarketAPI
                     Console.Write("| " + buffer);
                 count++;
             }
+            Console.WriteLine();
 
         }
     }
