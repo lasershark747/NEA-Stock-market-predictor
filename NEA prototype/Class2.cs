@@ -7,14 +7,6 @@ using System.Threading.Tasks;
 
 namespace NEA_prototype
 {
-    /*
-     What each graph is:
-        xsquared --> 3x^2 - 5x + 7
-
-
-    */
-
-
     internal class PolynomialRegression
     {
         List<(double x, int y)> quadratic, cubic, quartic, quintic, sextic;
