@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,38 +10,60 @@ namespace NEA_prototype
 {
     internal class PolynomialRegression
     {
-        List<(double x, int y)> quadratic, cubic, quartic, quintic, sextic;
-
 
 
         public PolynomialRegression()
         {
 
 
-            PopulateGraphs();
         }
 
-
-        private void PopulateGraphs()
+        public List<BigFloat> DoPolynomialRegression(List<(long, BigFloat)> points, int polynomialDegree)
         {
-            for(int i = 1; i <=15; i++)
+            List<BigFloat> coeffcients = new List<BigFloat>();
+            BigFloat[,] matrixA = new BigFloat[polynomialDegree + 1, polynomialDegree + 1];
+            BigFloat[] matrixB = new BigFloat[polynomialDegree + 1];
+            for (int i = 0; i < matrixA.GetLength(0); i++)
             {
-                quadratic.Add((3 * Math.Pow(i, 2) - 5 * i + 7, i));
-                cubic.Add((2 * Math.Pow(i, 3) + Math.Pow(i, 2) - 5, i));
-                quartic.Add((-6 * Math.Pow(i, 4) + Math.Pow(i, 3) + 2 * Math.Pow(i, 2) + 9 * i - 1, i));
-                quintic.Add((3 * Math.Pow(i, 5) - 5 * Math.Pow(i, 4) + Math.Pow(i, 3) - 9 * Math.Pow(i, 2) - 7 * i + 8, i));
-                sextic.Add((Math.Pow(i, 6), i));
+                for (int j = 0; j < matrixA.GetLength(0); j++)
+                {
+                    double sumOfx = 0;
+                    foreach ((long, double) coordinate in points)
+                    {
+                        sumOfx += Math.Pow(coordinate.Item1, i + j);
+                    }
+                    matrixA[i, j] = sumOfx;
+                }
+                double sumOfxy = 0;
+                foreach ((long, double) coordinate in points)
+                {
+                    sumOfxy += Math.Pow(coordinate.Item1, i) * coordinate.Item2;
+                }
+                matrixB[i] = sumOfxy;
             }
+            BigFloat[,] inverseMatrixA = Inverse(matrixA);
+
+
+
+            for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
+            {
+                BigFloat sum = 0;
+                for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
+                {
+                    sum += inverseMatrixA[i, j] * matrixB[j];
+                }
+                coeffcients.Add(sum);
+            }
+
+            return coeffcients;
         }
 
-
-
-        private double[,] Inverse(double[,] matrix)
+        private BigFloat[,] Inverse(BigFloat[,] matrix)
         {
-            double[,] inverse = new double[matrix.GetLength(0), matrix.GetLength(0)];
+            BigFloat[,] inverse = new BigFloat[matrix.GetLength(0), matrix.GetLength(0)];
             if (matrix.GetLength(0) == 2)
             {
-                double det = Determinant(matrix);
+                BigFloat det = Determinant(matrix);
                 inverse[0, 0] = matrix[1, 1] / det;
                 inverse[1, 1] = matrix[0, 0] / det;
                 inverse[0, 1] = -matrix[0, 1] / det;
@@ -50,7 +73,7 @@ namespace NEA_prototype
             else
             {
 
-                double det = Determinant(matrix);
+                BigFloat det = Determinant(matrix);
                 for (int i = 0; i < matrix.GetLength(0); i++)
                 {
                     for (int j = 0; j < matrix.GetLength(0); j++)
@@ -75,11 +98,9 @@ namespace NEA_prototype
 
             return inverse;
         }
-
-        //Subroutines below here work
-        private double Determinant(double[,] matrix)
+        private BigFloat Determinant(BigFloat[,] matrix)
         {
-            double det = 0;
+            BigFloat det = 0;
             if (matrix.GetLength(0) == 2)
             {
                 det += matrix[0, 0] * matrix[1, 1] - matrix[1, 0] * matrix[0, 1];
@@ -88,7 +109,7 @@ namespace NEA_prototype
             {
                 for (int i = 0; i < matrix.GetLength(0); ++i)
                 {
-                    double[,] cofactorMatrix = Cofactor(matrix, 0, i);
+                    BigFloat[,] cofactorMatrix = Cofactor(matrix, 0, i);
                     if (i % 2 == 0)
                     {
                         det += matrix[0, i] * Determinant(cofactorMatrix);
@@ -103,9 +124,9 @@ namespace NEA_prototype
             return det;
         }
 
-        private double[,] Cofactor(double[,] matrix, double row, double coloum)
+        private BigFloat[,] Cofactor(BigFloat[,] matrix, BigFloat row, BigFloat coloum)
         {
-            double[,] cofactorMatrix = new double[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
+            BigFloat[,] cofactorMatrix = new BigFloat[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
             bool checkRow = false;
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
@@ -143,9 +164,9 @@ namespace NEA_prototype
             }
             return cofactorMatrix;
         }
-        private double[,] Transpose(double[,] matrix)
+        private BigFloat[,] Transpose(BigFloat[,] matrix)
         {
-            double[,] transposed = new double[matrix.GetLength(0), matrix.GetLength(0)];
+            BigFloat[,] transposed = new BigFloat[matrix.GetLength(0), matrix.GetLength(0)];
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(0); j++)
@@ -157,4 +178,4 @@ namespace NEA_prototype
         }
     }
 }
-}
+

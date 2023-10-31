@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Numerics;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 using System.Xml.Linq;
-using trialWithStockMarketAPI;
+
 
 namespace NEA_prototype
 {
@@ -36,7 +37,7 @@ namespace NEA_prototype
         {
 
         }
-        public void AddNewSeries(List<(long, Double)> points, string name)
+        public void AddNewSeries(List<(long, BigFloat)> points, string name)
         {
             bool duplicate = false;
             string colour = colours[r.Next(0, colours.Length)];
@@ -79,7 +80,7 @@ namespace NEA_prototype
             }
         }
 
-        public void AddRegressionCurve(int[] equation, long startDate, string nameOfStock)
+        public void AddRegressionCurve(List<BigFloat> equation, long startDate, string nameOfStock)
         {
             //Need to input: equation of the curve, start of regression, name of stock
             bool duplicate = false;
@@ -111,14 +112,14 @@ namespace NEA_prototype
                 chart1.Series[name].Color = Color.FromName(colour);
                 Console.WriteLine("Now choosing date that you want to see the prediction up to.");
                 long endDate = ConvertToUNIXMilli();
-                for (long i = startDate; i < endDate; i+=86400)
+                for (long i = startDate; i < endDate; i+=86400000)
                 {
-                    double predictiedValue = 0;
-                    for(int j = 0; j < equation.Length; j++)
+                    BigFloat predictiedValue = 0;
+                    for(int j = 0; j < equation.Count; j++)
                     {
                         predictiedValue += equation[j] * Math.Pow(i, j);
                     }
-                    chart1.Series[name + "1"].Points.AddXY(i, predictiedValue);
+                    chart1.Series[name].Points.AddXY(i, double.Parse(predictiedValue.ToString()));
                 }
             }
         }

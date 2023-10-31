@@ -10,13 +10,14 @@ using static System.Net.WebRequestMethods;
 using NEA_prototype;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Numerics;
 /*
 curve needs to be in form x^0 --> x^n rather then x^n --> x^0
 
 
 
 */
-namespace trialWithStockMarketAPI
+namespace NEA_prototype
 {
     class InfoAboutStock
     {
@@ -76,9 +77,10 @@ namespace trialWithStockMarketAPI
         {
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
+            PolynomialRegression p = new PolynomialRegression();
             int numOfStocks = 0;
             List<string> stockNames = new List<string>();
-            List<List<(long, Double)>> stockPrices = new List<List<(long, Double)>>();
+            List<List<(long, BigFloat)>> stockPrices = new List<List<(long, BigFloat)>>();
             while (true)
             {
                 try
@@ -103,7 +105,7 @@ namespace trialWithStockMarketAPI
                 {
                     InfoAboutStock infoAboutStock1 = DoAPIRequest(1);
                     prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
-                    List<(long, Double)> points1 = new List<(long, Double)>();
+                    List<(long, BigFloat)> points1 = new List<(long, BigFloat)>();
                     foreach (prices pr in valuesOfStock1)
                     {
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
@@ -111,12 +113,16 @@ namespace trialWithStockMarketAPI
                     GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
                     stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
+
+
+                   
+                    
                 }
-                else if (choice == 3)
+                else if (choice == 2)
                 {
                     InfoAboutStock infoAboutStock1 = DoAPIRequest(2);
                     prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
-                    List<(long, Double)> points1 = new List<(long, Double)>();
+                    List<(long, BigFloat)> points1 = new List<(long, BigFloat)>();
                     foreach (prices pr in valuesOfStock1)
                     {
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
@@ -124,6 +130,7 @@ namespace trialWithStockMarketAPI
                     GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.ticker);
                     stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
+
                 }
                 else
                 {
@@ -149,17 +156,28 @@ namespace trialWithStockMarketAPI
 
             if (howToDisplay == 1)
             {
+                for(int i = 0; i < stockNames.Count; i++)
+                {
+                    List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i], 3);
+                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    for(int j = 0; j < coeffcients.Count; j++)
+                        Console.WriteLine(coeffcients[j]);
+                }
                 GraphOfStockValue.ShowDialog();
             }
             else if (howToDisplay == 2)
             {
                 DisplayTable(stockPrices[0]);
                 Console.ReadKey();
-
             }
             else
             {
                 DisplayTable(stockPrices[0]);
+                for (int i = 0; i < stockNames.Count; i++)
+                {
+                    List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i], 3);
+                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                }
                 Console.ReadKey();
                 GraphOfStockValue.ShowDialog();
             }
@@ -173,9 +191,9 @@ namespace trialWithStockMarketAPI
             {
                 try
                 {
-                    Console.WriteLine("Would you like to do a new analysis (1) or use an old analysis (2) (Doesn't work atm)");
+                    Console.WriteLine("Would you like to do a new analysis (1) or use example analysis (2)");
                     int response = int.Parse(Console.ReadLine());
-                    if (response != 1 && response != 2 && response != 3)
+                    if (response != 1 && response != 2)
                     {
                         throw new FormatException();
                     }
@@ -397,10 +415,10 @@ namespace trialWithStockMarketAPI
 
 
 
-        public static (long, double) binarySearch(long unixTime, List<(long,double)> stockValues)
+        public static (long, BigFloat) binarySearch(long unixTime, List<(long, BigFloat)> stockValues)
         {
             long number =unixTime;
-            List<(long, double)> trialList = stockValues;
+            List<(long, BigFloat)> trialList = stockValues;
             int min = 0;
             int max = trialList.Count - 1;
             while (true)
@@ -433,10 +451,10 @@ namespace trialWithStockMarketAPI
         }
 
 
-        public static void DisplayTable(List<(long,double)> prices)
+        public static void DisplayTable(List<(long, BigFloat)> prices)
         {
             Console.Clear();
-            List<(long, double)> userDefinedDates = new List<(long, double)>();
+            List<(long, BigFloat)> userDefinedDates = new List<(long, BigFloat)>();
             while(true)
             {
                 Console.Write("Would you like to find the price for a certain day? (y/n)");
@@ -458,7 +476,7 @@ namespace trialWithStockMarketAPI
                 Console.SetCursorPosition(0, count);
                 Console.Write(ConvertToyyyymmdd(prices[i].Item1));
                 Console.SetCursorPosition(13, count);
-                string buffer = Math.Round(prices[i].Item2, 2).ToString();
+                string buffer = Math.Round(double.Parse(prices[i].Item2.ToString()), 2).ToString();
                 if (buffer[buffer.Length - 2] == '.')
                     Console.Write("| " + buffer + "0");
                 else
@@ -470,7 +488,7 @@ namespace trialWithStockMarketAPI
                 Console.SetCursorPosition(0, count);
                 Console.Write(ConvertToyyyymmdd(userDefinedDates[i].Item1));
                 Console.SetCursorPosition(13, count);
-                string buffer = Math.Round(userDefinedDates[i].Item2, 2).ToString();
+                string buffer = Math.Round(double.Parse(userDefinedDates[i].Item2.ToString()), 2).ToString();
                 if (buffer[buffer.Length - 2] == '.')
                     Console.Write("| " + buffer + "0");
                 else
