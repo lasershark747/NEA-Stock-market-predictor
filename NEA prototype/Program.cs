@@ -115,8 +115,8 @@ namespace NEA_prototype
                     stockPrices.Add(points1);
 
 
-                   
-                    
+
+
                 }
                 else if (choice == 2)
                 {
@@ -156,13 +156,16 @@ namespace NEA_prototype
 
             if (howToDisplay == 1)
             {
-                for(int i = 0; i < stockNames.Count; i++)
+                
+                for (int i = 0; i < stockNames.Count; i++)
                 {
-                    List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i], 3);
-                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
-                    for(int j = 0; j < coeffcients.Count; j++)
-                        Console.WriteLine(coeffcients[j]);
+                    for (int j = 3; j < 9; j++)
+                    {
+                        List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
+                        GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    }
                 }
+                
                 GraphOfStockValue.ShowDialog();
             }
             else if (howToDisplay == 2)
@@ -175,8 +178,11 @@ namespace NEA_prototype
                 DisplayTable(stockPrices[0]);
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                    List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i], 3);
-                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    for (int j = 3; j < 9; j++)
+                    {
+                        List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
+                        GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    }
                 }
                 Console.ReadKey();
                 GraphOfStockValue.ShowDialog();

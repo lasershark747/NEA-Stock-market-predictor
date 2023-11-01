@@ -18,44 +18,66 @@ namespace NEA_prototype
 
         }
 
-        public List<BigFloat> DoPolynomialRegression(List<(long, BigFloat)> points, int polynomialDegree)
+        public List<BigFloat> DoPolynomialRegression(List<(long, BigFloat)> points)
         {
-            List<BigFloat> coeffcients = new List<BigFloat>();
-            BigFloat[,] matrixA = new BigFloat[polynomialDegree + 1, polynomialDegree + 1];
-            BigFloat[] matrixB = new BigFloat[polynomialDegree + 1];
-            for (int i = 0; i < matrixA.GetLength(0); i++)
+            List<List<BigFloat>> ListOfCoeffcients = new List<List<BigFloat>>();
+            for (int x = 2; x <= 8; x++)
             {
-                for (int j = 0; j < matrixA.GetLength(0); j++)
+                Console.WriteLine(x);
+
+
+
+                List<BigFloat> coeffcients = new List<BigFloat>();
+                BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
+                BigFloat[] matrixB = new BigFloat[x + 1];
+                for (int i = 0; i < matrixA.GetLength(0); i++)
                 {
-                    double sumOfx = 0;
+                    for (int j = 0; j < matrixA.GetLength(0); j++)
+                    {
+                        double sumOfx = 0;
+                        foreach ((long, double) coordinate in points)
+                        {
+                            sumOfx += Math.Pow(coordinate.Item1, i + j);
+                        }
+                        matrixA[i, j] = sumOfx;
+                    }
+                    double sumOfxy = 0;
                     foreach ((long, double) coordinate in points)
                     {
-                        sumOfx += Math.Pow(coordinate.Item1, i + j);
+                        sumOfxy += Math.Pow(coordinate.Item1, i) * coordinate.Item2;
                     }
-                    matrixA[i, j] = sumOfx;
+                    matrixB[i] = sumOfxy;
                 }
-                double sumOfxy = 0;
-                foreach ((long, double) coordinate in points)
+                BigFloat[,] inverseMatrixA = Inverse(matrixA);
+
+                for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
                 {
-                    sumOfxy += Math.Pow(coordinate.Item1, i) * coordinate.Item2;
+                    BigFloat sum = 0;
+                    for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
+                    {
+                        sum += inverseMatrixA[i, j] * matrixB[j];
+                    }
+                    coeffcients.Add(sum);
                 }
-                matrixB[i] = sumOfxy;
+                ListOfCoeffcients.Add(coeffcients);
             }
-            BigFloat[,] inverseMatrixA = Inverse(matrixA);
 
+            int bestLine = 0;
+            double bestBIC = 9999999999999;
 
-
-            for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
+            for(int i = 0; i < ListOfCoeffcients.Count; i++)
             {
-                BigFloat sum = 0;
-                for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
-                {
-                    sum += inverseMatrixA[i, j] * matrixB[j];
-                }
-                coeffcients.Add(sum);
-            }
+                SumOfResiduals s = new SumOfResiduals(points, ListOfCoeffcients[i]);
+                double BIC = points.Count * Math.Log(s.DoSumOfResiduals()) + (i+3) * Math.Log(points.Count);
 
-            return coeffcients;
+                if(bestBIC > BIC)
+                {
+                    bestBIC = BIC;
+                    bestLine = i;
+                }
+            }
+            Console.WriteLine(bestLine);
+            return ListOfCoeffcients[bestLine];
         }
 
         private BigFloat[,] Inverse(BigFloat[,] matrix)
@@ -120,7 +142,6 @@ namespace NEA_prototype
                     }
                 }
             }
-
             return det;
         }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -8,18 +9,18 @@ namespace NEA_prototype
 {
     internal class SumOfResiduals
     {
-        private List<(long, Double)> data;
-        public List<decimal> curve;
+        private List<(long, BigFloat)> data;
+        public List<BigFloat> curve;
 
 
-        public SumOfResiduals(List<(long, double)> data, List<decimal> curve)
+        public SumOfResiduals(List<(long, BigFloat)> data, List<BigFloat> curve)
         {
             this.data = data;
             this.curve = curve;
         }
 
 
-        public decimal DoSumOfResiduals()
+        public double DoSumOfResiduals()
         {
             decimal RSS = 0;
             decimal TV = 0;
@@ -27,14 +28,14 @@ namespace NEA_prototype
             RSS = ResidualSumOfSquares();
             TV = TotalVariance();
 
-            return 1 - RSS/TV;
+            return double.Parse((1 - RSS / TV).ToString()); ;
         }
 
 
         private decimal ResidualSumOfSquares()
         {
             decimal sum = 0;
-            foreach ((long, Double) p in data)
+            foreach ((long, BigFloat) p in data)
             {
                 sum += ((decimal)p.Item2 - FOfX(p.Item1)) * ((decimal)p.Item2 - FOfX(p.Item1));
             }
@@ -48,9 +49,9 @@ namespace NEA_prototype
 
             decimal mean = FindTheMean();
 
-            foreach ((long, Double) p in data)
+            foreach ((long, BigFloat) p in data)
             {
-                sum += (mean - (decimal)p.Item2) * (mean - (decimal)p.Item2);
+                sum += (mean - (decimal)double.Parse(p.Item2.ToString())) * (mean - (decimal)double.Parse(p.Item2.ToString()));
             }
 
             return sum;
@@ -62,7 +63,7 @@ namespace NEA_prototype
             decimal sum = 0; 
             for(int i = 0; i < curve.Count; i++)
             {
-                sum += curve[i] * (decimal)Math.Pow(x, i);
+                sum += decimal.Parse(curve[i].ToString()) * (decimal)Math.Pow(x, i);
             }
             return sum;
         }

@@ -88,19 +88,19 @@ namespace NEA_prototype
             string name = nameOfStock + " prediction";
             foreach (string name2 in names)
             {
-                if (name == name2)
+                while (true)
                 {
-                    Console.WriteLine("A series with the same name already exists.");
-                    Console.WriteLine("Would you like to still display the graph? \ny or n");
-                    if (Console.ReadLine() == "n")
+
+                    if (name == name2)
                     {
-                        duplicate = true;
-                    }
-                    else
-                    {
+
                         name = name + "2";
                     }
-                    break;
+
+                    else
+                    {
+                        break;
+                    }
                 }
 
             }
@@ -119,7 +119,14 @@ namespace NEA_prototype
                     {
                         predictiedValue += equation[j] * Math.Pow(i, j);
                     }
-                    chart1.Series[name].Points.AddXY(i, double.Parse(predictiedValue.ToString()));
+                    try
+                    {
+                        chart1.Series[name].Points.AddXY(i, double.Parse(predictiedValue.ToString()));
+                    }
+                    catch
+                    {
+                        break;
+                    }
                 }
             }
         }
