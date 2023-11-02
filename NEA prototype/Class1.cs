@@ -22,52 +22,62 @@ namespace NEA_prototype
 
         public double DoSumOfResiduals()
         {
-            decimal RSS = 0;
-            decimal TV = 0;
+            BigFloat RSS = 0;
+            BigFloat TV = 0;
 
             RSS = ResidualSumOfSquares();
             TV = TotalVariance();
-
+            Console.WriteLine(data.Count);
             return double.Parse((1 - RSS / TV).ToString()); ;
         }
 
 
-        private decimal ResidualSumOfSquares()
+        private BigFloat ResidualSumOfSquares()
         {
-            decimal sum = 0;
+            BigFloat sum = 0;
             foreach ((long, BigFloat) p in data)
             {
-                sum += ((decimal)p.Item2 - FOfX(p.Item1)) * ((decimal)p.Item2 - FOfX(p.Item1));
+                sum += (p.Item2 - FOfX(p.Item1)) * (p.Item2 - FOfX(p.Item1));
             }
 
             return sum;
         }
 
-        private decimal TotalVariance()
+        private BigFloat TotalVariance()
         {
-            decimal sum = 0;
+            BigFloat sum = 0;
 
-            decimal mean = FindTheMean();
+            BigFloat mean = FindTheMean();
 
             foreach ((long, BigFloat) p in data)
             {
-                sum += (mean - (decimal)double.Parse(p.Item2.ToString())) * (mean - (decimal)double.Parse(p.Item2.ToString()));
+                sum += (mean - p.Item2) * (mean -p.Item2);
             }
 
             return sum;
         }
 
 
-        private decimal FOfX(long x)
+        private BigFloat FOfX(long x)
         {
-            decimal sum = 0; 
+            BigFloat sum = 0; 
             for(int i = 0; i < curve.Count; i++)
             {
-                sum += decimal.Parse(curve[i].ToString()) * (decimal)Math.Pow(x, i);
+                sum += curve[i] * (BigFloat)Math.Pow(x, i);
             }
             return sum;
         }
 
-        private decimal FindTheMean() => data.Sum(p => (decimal) p.Item2) / data.Count;
+        private BigFloat FindTheMean()
+        {
+            BigFloat count = data.Count;
+            BigFloat sum = 0;
+            foreach((long,BigFloat) p in data)
+            {
+                sum += p.Item2;
+            }
+            return sum/count;
+
+        }
     }
 }

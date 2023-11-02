@@ -24,9 +24,6 @@ namespace NEA_prototype
             for (int x = 2; x <= 8; x++)
             {
                 Console.WriteLine(x);
-
-
-
                 List<BigFloat> coeffcients = new List<BigFloat>();
                 BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
                 BigFloat[] matrixB = new BigFloat[x + 1];
@@ -65,10 +62,15 @@ namespace NEA_prototype
             int bestLine = 0;
             double bestBIC = 9999999999999;
 
-            for(int i = 0; i < ListOfCoeffcients.Count; i++)
+            Console.WriteLine("pause");
+            Console.ReadKey();
+            for (int i = 0; i < ListOfCoeffcients.Count; i++)
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoeffcients[i]);
-                double BIC = points.Count * Math.Log(s.DoSumOfResiduals()) + (i+3) * Math.Log(points.Count);
+                Console.WriteLine(s.DoSumOfResiduals());
+                Console.WriteLine("finished");
+                Console.ReadKey();
+                double BIC = points.Count * Math.Log10(s.DoSumOfResiduals()) + (i+3) * Math.Log10(points.Count);
 
                 if(bestBIC > BIC)
                 {
