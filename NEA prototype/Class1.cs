@@ -48,6 +48,19 @@ namespace NEA_prototype
             return sum;
         }
 
+        private void Residuals()
+        {
+            BigFloat sum = 0;
+            foreach((long, BigFloat) p in data)
+            {
+                BigFloat predicted = FOfX(p.Item1);
+                sum += p.Item2 - predicted * predicted;
+            }
+
+
+
+        }
+
         private BigFloat TotalVariance()
         {
             BigFloat sum = 0;
