@@ -10,25 +10,30 @@ namespace NEA_prototype
     internal class SumOfResiduals
     {
         private List<(long, BigFloat)> data;
-        public List<BigFloat> curve;
+        private List<BigFloat> curve;
+        private BigFloat mean;
 
 
         public SumOfResiduals(List<(long, BigFloat)> data, List<BigFloat> curve)
         {
             this.data = data;
             this.curve = curve;
+            this.mean = FindTheMean();
         }
 
 
-        public double DoSumOfResiduals()
+        public BigFloat DoSumOfResiduals()
         {
+            System.Diagnostics.Stopwatch myStopWatch = new System.Diagnostics.Stopwatch();
+            myStopWatch.Start();
             BigFloat RSS = 0;
             BigFloat TV = 0;
 
             RSS = ResidualSumOfSquares();
             TV = TotalVariance();
-            Console.WriteLine(data.Count);
-            return double.Parse((1 - RSS / TV).ToString()); ;
+            myStopWatch.Stop();
+            Console.WriteLine(myStopWatch.Elapsed);
+            return 1 - RSS / TV;
         }
 
 
@@ -46,12 +51,9 @@ namespace NEA_prototype
         private BigFloat TotalVariance()
         {
             BigFloat sum = 0;
-
-            BigFloat mean = FindTheMean();
-
             foreach ((long, BigFloat) p in data)
             {
-                sum += (mean - p.Item2) * (mean -p.Item2);
+                sum += (mean - p.Item2) * (mean - p.Item2);
             }
 
             return sum;
@@ -76,7 +78,8 @@ namespace NEA_prototype
             {
                 sum += p.Item2;
             }
-            return sum/count;
+            BigFloat mean = BigFloat.Parse(Math.Round(double.Parse((sum / count).ToString()),7).ToString());
+            return mean;
 
         }
     }

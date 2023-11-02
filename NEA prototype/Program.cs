@@ -159,11 +159,8 @@ namespace NEA_prototype
                 
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                    for (int j = 3; j < 9; j++)
-                    {
                         List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
                         GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
-                    }
                 }
                 
                 GraphOfStockValue.ShowDialog();
@@ -178,11 +175,8 @@ namespace NEA_prototype
                 DisplayTable(stockPrices[0]);
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                    for (int j = 3; j < 9; j++)
-                    {
                         List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
                         GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
-                    }
                 }
                 Console.ReadKey();
                 GraphOfStockValue.ShowDialog();

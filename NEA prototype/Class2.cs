@@ -21,7 +21,7 @@ namespace NEA_prototype
         public List<BigFloat> DoPolynomialRegression(List<(long, BigFloat)> points)
         {
             List<List<BigFloat>> ListOfCoeffcients = new List<List<BigFloat>>();
-            for (int x = 2; x <= 8; x++)
+            for (int x = 2; x <= 3; x++)
             {
                 Console.WriteLine(x);
                 List<BigFloat> coeffcients = new List<BigFloat>();
@@ -60,19 +60,19 @@ namespace NEA_prototype
             }
 
             int bestLine = 0;
-            double bestBIC = 9999999999999;
+            BigFloat bestBIC = -999;
+            Console.WriteLine("now doing BIC");
 
-            Console.WriteLine("pause");
-            Console.ReadKey();
             for (int i = 0; i < ListOfCoeffcients.Count; i++)
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoeffcients[i]);
-                Console.WriteLine(s.DoSumOfResiduals());
-                Console.WriteLine("finished");
-                Console.ReadKey();
-                double BIC = points.Count * Math.Log10(s.DoSumOfResiduals()) + (i+3) * Math.Log10(points.Count);
-
-                if(bestBIC > BIC)
+                BigFloat sumOfResidualsLog10 = Math.Log10(double.Parse(s.DoSumOfResiduals().ToString()));
+                BigFloat numOfPointsLog10 = Math.Log10(points.Count);
+                Console.WriteLine(sumOfResidualsLog10);
+                Console.WriteLine(numOfPointsLog10);
+                BigFloat BIC = points.Count * sumOfResidualsLog10 + (i+3) * numOfPointsLog10;
+                Console.WriteLine(BIC);
+                if (bestBIC < BIC)
                 {
                     bestBIC = BIC;
                     bestLine = i;
