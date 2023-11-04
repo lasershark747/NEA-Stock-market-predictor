@@ -75,12 +75,14 @@ namespace NEA_prototype
     {
         static void Main(string[] args)
         {
+            System.Diagnostics.Stopwatch myStopWatch = new System.Diagnostics.Stopwatch();
+            myStopWatch.Start();
             Console.WriteLine("Welcome to SPAM");
             Line_Chart GraphOfStockValue = new Line_Chart();
             PolynomialRegression p = new PolynomialRegression();
             int numOfStocks = 0;
             List<string> stockNames = new List<string>();
-            List<List<(long, BigFloat)>> stockPrices = new List<List<(long, BigFloat)>>();
+            List<List<(long, double)>> stockPrices = new List<List<(long, double)>>();
             while (true)
             {
                 try
@@ -105,7 +107,7 @@ namespace NEA_prototype
                 {
                     InfoAboutStock infoAboutStock1 = DoAPIRequest(1);
                     prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
-                    List<(long, BigFloat)> points1 = new List<(long, BigFloat)>();
+                    List<(long, double)> points1 = new List<(long, double)>();
                     foreach (prices pr in valuesOfStock1)
                     {
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
@@ -122,7 +124,7 @@ namespace NEA_prototype
                 {
                     InfoAboutStock infoAboutStock1 = DoAPIRequest(2);
                     prices[] valuesOfStock1 = infoAboutStock1.GetPrices();
-                    List<(long, BigFloat)> points1 = new List<(long, BigFloat)>();
+                    List<(long, double)> points1 = new List<(long, double)>();
                     foreach (prices pr in valuesOfStock1)
                     {
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
@@ -159,10 +161,11 @@ namespace NEA_prototype
                 
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                        List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
+                        List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
                         GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
                 }
-                
+                myStopWatch.Stop();
+                Console.WriteLine(myStopWatch.Elapsed);
                 GraphOfStockValue.ShowDialog();
             }
             else if (howToDisplay == 2)
@@ -175,7 +178,7 @@ namespace NEA_prototype
                 DisplayTable(stockPrices[0]);
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                        List<BigFloat> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
+                        List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
                         GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
                 }
                 Console.ReadKey();
@@ -243,7 +246,11 @@ namespace NEA_prototype
                 {
                     //add any common errors for the API request in here 
                     Console.Clear();
-                    Console.WriteLine("Error in the API request\nSome possible errors are:\nEntered data incorrectly\nStock isn't on the NASDAQ\nDate inputed isn't within correct margin");
+                    if (choice != 1)
+                    {
+                        Console.WriteLine("Please check you internet connection.");
+                    }
+                    Console.WriteLine("Error in the API request\nSome possible errors are:\nEntered data incorrectly\nStock isn't on the NASDAQ\nDate inputed isn't within correct time span --> up to 2 year in the past\nInternet may be down");
                 }
 
             }
@@ -415,10 +422,10 @@ namespace NEA_prototype
 
 
 
-        public static (long, BigFloat) binarySearch(long unixTime, List<(long, BigFloat)> stockValues)
+        public static (long, double) binarySearch(long unixTime, List<(long, double)> stockValues)
         {
             long number =unixTime;
-            List<(long, BigFloat)> trialList = stockValues;
+            List<(long, double)> trialList = stockValues;
             int min = 0;
             int max = trialList.Count - 1;
             while (true)
@@ -451,10 +458,10 @@ namespace NEA_prototype
         }
 
 
-        public static void DisplayTable(List<(long, BigFloat)> prices)
+        public static void DisplayTable(List<(long, double)> prices)
         {
             Console.Clear();
-            List<(long, BigFloat)> userDefinedDates = new List<(long, BigFloat)>();
+            List<(long, double)> userDefinedDates = new List<(long, double)>();
             while(true)
             {
                 Console.Write("Would you like to find the price for a certain day? (y/n)");

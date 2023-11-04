@@ -9,91 +9,43 @@ namespace NEA_prototype
 {
     internal class SumOfResiduals
     {
-        private List<(long, BigFloat)> data;
-        private List<BigFloat> curve;
-        private BigFloat mean;
+        private List<(long, double)> data;
+        private List<double> curve;
 
 
-        public SumOfResiduals(List<(long, BigFloat)> data, List<BigFloat> curve)
+        public SumOfResiduals(List<(long, double)> data, List<double> curve)
         {
             this.data = data;
             this.curve = curve;
-            this.mean = FindTheMean();
         }
 
-
-        public BigFloat DoSumOfResiduals()
+        public BigFloat Residuals(int numOfdataPoints)
         {
-            System.Diagnostics.Stopwatch myStopWatch = new System.Diagnostics.Stopwatch();
-            myStopWatch.Start();
-            BigFloat RSS = 0;
-            BigFloat TV = 0;
-
-            RSS = ResidualSumOfSquares();
-            TV = TotalVariance();
-            myStopWatch.Stop();
-            Console.WriteLine(myStopWatch.Elapsed);
-            return 1 - RSS / TV;
-        }
-
-
-        private BigFloat ResidualSumOfSquares()
-        {
-            BigFloat sum = 0;
-            foreach ((long, BigFloat) p in data)
+            double sum = 0;
+            int x = data.Count/numOfdataPoints;
+            int count = 0;
+            for (int i = 0; i < data.Count; i+=x)
             {
-                sum += (p.Item2 - FOfX(p.Item1)) * (p.Item2 - FOfX(p.Item1));
+                double predicted = FOfX(data[i].Item1);
+                sum += data[i].Item2 - predicted * predicted;
+                Console.WriteLine(count);
+                count++;
             }
-
-            return sum;
+            BigFloat variance = sum / (data.Count-curve.Count);
+            Console.WriteLine(variance);
+            Console.ReadKey();
+            Console.Clear();
+            return variance;
         }
 
-        private void Residuals()
+        private double FOfX(long x)
         {
-            BigFloat sum = 0;
-            foreach((long, BigFloat) p in data)
-            {
-                BigFloat predicted = FOfX(p.Item1);
-                sum += p.Item2 - predicted * predicted;
-            }
-
-
-
-        }
-
-        private BigFloat TotalVariance()
-        {
-            BigFloat sum = 0;
-            foreach ((long, BigFloat) p in data)
-            {
-                sum += (mean - p.Item2) * (mean - p.Item2);
-            }
-
-            return sum;
-        }
-
-
-        private BigFloat FOfX(long x)
-        {
-            BigFloat sum = 0; 
+            double sum = 0; 
             for(int i = 0; i < curve.Count; i++)
             {
-                sum += curve[i] * (BigFloat)Math.Pow(x, i);
+                sum += curve[i] * Math.Pow(x, i);
             }
             return sum;
-        }
-
-        private BigFloat FindTheMean()
-        {
-            BigFloat count = data.Count;
-            BigFloat sum = 0;
-            foreach((long,BigFloat) p in data)
-            {
-                sum += p.Item2;
-            }
-            BigFloat mean = BigFloat.Parse(Math.Round(double.Parse((sum / count).ToString()),7).ToString());
-            return mean;
-
         }
     }
 }

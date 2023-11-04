@@ -37,7 +37,7 @@ namespace NEA_prototype
         {
 
         }
-        public void AddNewSeries(List<(long, BigFloat)> points, string name)
+        public void AddNewSeries(List<(long, double)> points, string name)
         {
             bool duplicate = false;
             string colour = colours[r.Next(0, colours.Length)];
@@ -80,7 +80,7 @@ namespace NEA_prototype
             }
         }
 
-        public void AddRegressionCurve(List<BigFloat> equation, long startDate, string nameOfStock)
+        public void AddRegressionCurve(List<double> equation, long startDate, string nameOfStock)
         {
             //Need to input: equation of the curve, start of regression, name of stock
             bool duplicate = false;

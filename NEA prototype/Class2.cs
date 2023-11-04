@@ -18,13 +18,12 @@ namespace NEA_prototype
 
         }
 
-        public List<BigFloat> DoPolynomialRegression(List<(long, BigFloat)> points)
+        public List<double> DoPolynomialRegression(List<(long, double)> points)
         {
-            List<List<BigFloat>> ListOfCoeffcients = new List<List<BigFloat>>();
-            for (int x = 2; x <= 3; x++)
+            List<List<double>> ListOfCoeffcients = new List<List<double>>();
+            for (int x = 2; x <= 8; x++)
             {
-                Console.WriteLine(x);
-                List<BigFloat> coeffcients = new List<BigFloat>();
+                List<double> coeffcients = new List<double>();
                 BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
                 BigFloat[] matrixB = new BigFloat[x + 1];
                 for (int i = 0; i < matrixA.GetLength(0); i++)
@@ -54,29 +53,32 @@ namespace NEA_prototype
                     {
                         sum += inverseMatrixA[i, j] * matrixB[j];
                     }
-                    coeffcients.Add(sum);
+                    Console.WriteLine(sum);
+                    coeffcients.Add((double)sum);
                 }
                 ListOfCoeffcients.Add(coeffcients);
+                Console.WriteLine(x);
+
             }
 
             int bestLine = 0;
-            BigFloat bestBIC = -999;
-            Console.WriteLine("now doing BIC");
+            BigFloat bestVariance = 99999999999;
+            Console.WriteLine("please enter how many data points you would like to use to find the optimal order\nUsing more then 100 data points will take too long");
+            int numOfPoints = int.Parse(Console.ReadLine());
+
+
 
             for (int i = 0; i < ListOfCoeffcients.Count; i++)
             {
-                SumOfResiduals s = new SumOfResiduals(points, ListOfCoeffcients[i]);
-                BigFloat sumOfResidualsLog10 = Math.Log10(double.Parse(s.DoSumOfResiduals().ToString()));
-                BigFloat numOfPointsLog10 = Math.Log10(points.Count);
-                Console.WriteLine(sumOfResidualsLog10);
-                Console.WriteLine(numOfPointsLog10);
-                BigFloat BIC = points.Count * sumOfResidualsLog10 + (i+3) * numOfPointsLog10;
-                Console.WriteLine(BIC);
-                if (bestBIC < BIC)
+                SumOfResiduals s = new SumOfResiduals(points, ListOfCoeffcients[i]); //try using decimals as that may have enough accuracy
+                BigFloat variance = s.Residuals(numOfPoints);
+                Console.WriteLine(variance);
+                if (bestVariance > variance)
                 {
-                    bestBIC = BIC;
+                    bestVariance = variance;
                     bestLine = i;
                 }
+
             }
             Console.WriteLine(bestLine);
             return ListOfCoeffcients[bestLine];
