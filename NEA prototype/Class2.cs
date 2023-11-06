@@ -20,10 +20,10 @@ namespace NEA_prototype
 
         public List<double> DoPolynomialRegression(List<(long, double)> points)
         {
-            List<List<double>> ListOfCoeffcients = new List<List<double>>();
-            for (int x = 2; x <= 8; x++)
+            List<List<double>> ListOfCoefficients = new List<List<double>>();
+            for (int x = 2; x <= 4; x++)
             {
-                List<double> coeffcients = new List<double>();
+                List<double> coefficients = new List<double>();
                 BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
                 BigFloat[] matrixB = new BigFloat[x + 1];
                 for (int i = 0; i < matrixA.GetLength(0); i++)
@@ -48,30 +48,37 @@ namespace NEA_prototype
 
                 for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
                 {
-                    BigFloat sum = 0;
+                    double sum = 0;
                     for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
                     {
-                        sum += inverseMatrixA[i, j] * matrixB[j];
+                        if (inverseMatrixA[i, j] * matrixB[j] < double.MinValue)
+                        {
+                            sum += double.MinValue;
+                        }
+                        else
+                        {
+                            sum += (double)(inverseMatrixA[i, j] * matrixB[j]);
+                        }
                     }
-                    Console.WriteLine(sum);
-                    coeffcients.Add((double)sum);
+
+
+                    coefficients.Add(sum);
                 }
-                ListOfCoeffcients.Add(coeffcients);
+                ListOfCoefficients.Add(coefficients);
                 Console.WriteLine(x);
 
             }
 
             int bestLine = 0;
-            BigFloat bestVariance = 99999999999;
-            Console.WriteLine("please enter how many data points you would like to use to find the optimal order\nUsing more then 100 data points will take too long");
-            int numOfPoints = int.Parse(Console.ReadLine());
+            double bestVariance = 99999999999;
 
 
 
-            for (int i = 0; i < ListOfCoeffcients.Count; i++)
+
+            for (int i = 0; i < ListOfCoefficients.Count; i++)
             {
-                SumOfResiduals s = new SumOfResiduals(points, ListOfCoeffcients[i]); //try using decimals as that may have enough accuracy
-                BigFloat variance = s.Residuals(numOfPoints);
+                SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
+                double variance = s.Residuals();
                 Console.WriteLine(variance);
                 if (bestVariance > variance)
                 {
@@ -81,7 +88,8 @@ namespace NEA_prototype
 
             }
             Console.WriteLine(bestLine);
-            return ListOfCoeffcients[bestLine];
+
+            return ListOfCoefficients[bestLine];
         }
 
         private BigFloat[,] Inverse(BigFloat[,] matrix)

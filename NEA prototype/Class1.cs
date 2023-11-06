@@ -19,22 +19,17 @@ namespace NEA_prototype
             this.curve = curve;
         }
 
-        public BigFloat Residuals(int numOfdataPoints)
+        public double Residuals()
         {
             double sum = 0;
-            int x = data.Count/numOfdataPoints;
-            int count = 0;
-            for (int i = 0; i < data.Count; i+=x)
+            
+            for (int i = 0; i < data.Count; i++)
             {
                 double predicted = FOfX(data[i].Item1);
-                sum += data[i].Item2 - predicted * predicted;
-                Console.WriteLine(count);
-                count++;
+                sum += double.Parse(data[i].Item2.ToString()) - predicted * predicted;
+                
             }
-            BigFloat variance = sum / (data.Count-curve.Count);
-            Console.WriteLine(variance);
-            Console.ReadKey();
-            Console.Clear();
+            double variance = sum / (data.Count-curve.Count);            
             return variance;
         }
 
@@ -43,7 +38,7 @@ namespace NEA_prototype
             double sum = 0; 
             for(int i = 0; i < curve.Count; i++)
             {
-                sum += curve[i] * Math.Pow(x, i);
+                sum += curve[i] * double.Parse(Math.Pow(x, i).ToString());
             }
             return sum;
         }

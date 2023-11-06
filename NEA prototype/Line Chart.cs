@@ -114,7 +114,7 @@ namespace NEA_prototype
                 long endDate = ConvertToUNIXMilli();
                 for (long i = startDate; i < endDate; i+=86400000)
                 {
-                    BigFloat predictiedValue = 0;
+                    double predictiedValue = 0;
                     for(int j = 0; j < equation.Count; j++)
                     {
                         predictiedValue += equation[j] * Math.Pow(i, j);

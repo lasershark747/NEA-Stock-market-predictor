@@ -450,11 +450,8 @@ namespace NEA_prototype
                 else if(number < trialList[midPoint].Item1)
                 {
                     max = midPoint-1;
-                }
-
-                
+                }   
             }
-
         }
 
 
