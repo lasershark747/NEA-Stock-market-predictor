@@ -1,31 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NEA_prototype
 {
     internal class PolynomialRegression
     {
-
-
-        public PolynomialRegression()
-        {
-
-
-        }
+        public PolynomialRegression() {}
 
         public List<double> DoPolynomialRegression(List<(long, double)> points)
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
-            for (int x = 2; x <= 4; x++)
+
+            for (int x = 1; x <= 4; x++)
             {
                 List<double> coefficients = new List<double>();
                 BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
                 BigFloat[] matrixB = new BigFloat[x + 1];
+
                 for (int i = 0; i < matrixA.GetLength(0); i++)
                 {
                     for (int j = 0; j < matrixA.GetLength(0); j++)
@@ -37,22 +29,27 @@ namespace NEA_prototype
                         }
                         matrixA[i, j] = sumOfx;
                     }
+
                     double sumOfxy = 0;
+
                     foreach ((long, double) coordinate in points)
                     {
                         sumOfxy += Math.Pow(coordinate.Item1, i) * coordinate.Item2;
                     }
                     matrixB[i] = sumOfxy;
                 }
+
                 BigFloat[,] inverseMatrixA = Inverse(matrixA);
 
                 for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
                 {
                     double sum = 0;
+
                     for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
                     {
                         if (inverseMatrixA[i, j] * matrixB[j] < double.MinValue)
                         {
+                            Console.WriteLine(inverseMatrixA[i, j] * matrixB[j]);
                             sum += double.MinValue;
                         }
                         else
@@ -61,33 +58,25 @@ namespace NEA_prototype
                         }
                     }
 
-
                     coefficients.Add(sum);
                 }
-                ListOfCoefficients.Add(coefficients);
-                Console.WriteLine(x);
 
+                ListOfCoefficients.Add(coefficients);
             }
 
             int bestLine = 0;
             double bestVariance = 99999999999;
 
-
-
-
             for (int i = 0; i < ListOfCoefficients.Count; i++)
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
                 double variance = s.Residuals();
-                Console.WriteLine(variance);
                 if (bestVariance > variance)
                 {
                     bestVariance = variance;
                     bestLine = i;
                 }
-
             }
-            Console.WriteLine(bestLine);
 
             return ListOfCoefficients[bestLine];
         }
@@ -95,6 +84,7 @@ namespace NEA_prototype
         private BigFloat[,] Inverse(BigFloat[,] matrix)
         {
             BigFloat[,] inverse = new BigFloat[matrix.GetLength(0), matrix.GetLength(0)];
+
             if (matrix.GetLength(0) == 2)
             {
                 BigFloat det = Determinant(matrix);
@@ -121,20 +111,18 @@ namespace NEA_prototype
                         {
                             inverse[i, j] = (-1) * Determinant(Cofactor(matrix, i, j)) / det;
                         }
-
                     }
                 }
 
                 inverse = Transpose(inverse);
             }
 
-
-
             return inverse;
         }
         private BigFloat Determinant(BigFloat[,] matrix)
         {
             BigFloat det = 0;
+
             if (matrix.GetLength(0) == 2)
             {
                 det += matrix[0, 0] * matrix[1, 1] - matrix[1, 0] * matrix[0, 1];
@@ -144,6 +132,7 @@ namespace NEA_prototype
                 for (int i = 0; i < matrix.GetLength(0); ++i)
                 {
                     BigFloat[,] cofactorMatrix = Cofactor(matrix, 0, i);
+
                     if (i % 2 == 0)
                     {
                         det += matrix[0, i] * Determinant(cofactorMatrix);
@@ -154,13 +143,15 @@ namespace NEA_prototype
                     }
                 }
             }
+
             return det;
         }
-
         private BigFloat[,] Cofactor(BigFloat[,] matrix, BigFloat row, BigFloat coloum)
         {
             BigFloat[,] cofactorMatrix = new BigFloat[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
+
             bool checkRow = false;
+
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 if (i == row)
@@ -170,6 +161,7 @@ namespace NEA_prototype
                 else
                 {
                     bool checkColoum = false;
+
                     for (int j = 0; j < matrix.GetLength(0); j++)
                     {
                         if (j == coloum)
@@ -195,11 +187,13 @@ namespace NEA_prototype
                     }
                 }
             }
+
             return cofactorMatrix;
         }
         private BigFloat[,] Transpose(BigFloat[,] matrix)
         {
             BigFloat[,] transposed = new BigFloat[matrix.GetLength(0), matrix.GetLength(0)];
+
             for (int i = 0; i < matrix.GetLength(0); i++)
             {
                 for (int j = 0; j < matrix.GetLength(0); j++)
@@ -207,6 +201,7 @@ namespace NEA_prototype
                     transposed[i, j] = matrix[j, i];
                 }
             }
+
             return transposed;
         }
     }

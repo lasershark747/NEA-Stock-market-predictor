@@ -1,17 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Numerics;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
-using System.Xml.Linq;
-
 
 namespace NEA_prototype
 {
@@ -33,10 +24,8 @@ namespace NEA_prototype
             colours = colourList.Split('.');
         }
 
-        private void Line_Chart_Load(object sender, EventArgs e)
-        {
+        private void Line_Chart_Load(object sender, EventArgs e) {}
 
-        }
         public void AddNewSeries(List<(long, double)> points, string name)
         {
             bool duplicate = false;
@@ -48,6 +37,7 @@ namespace NEA_prototype
                 {
                     Console.WriteLine("A series with the same name already exists.");
                     Console.WriteLine("Would you like to still display the graph? \ny or n");
+
                     if (Console.ReadLine() == "n")
                     {
                         duplicate = true;
@@ -60,43 +50,44 @@ namespace NEA_prototype
                 }
 
             }
+
             if (!duplicate)
             {
                 names.Add(name);
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Spline;
                 chart1.Series[name].Color = Color.FromName(colour);
+
                 foreach ((long, double) point in points)
                 {
                     chart1.Series[name].Points.AddXY(point.Item1, point.Item2);
                 }
+
                 chart1.Series.Add(name + "1");
                 chart1.Series[name + "1"].ChartType = SeriesChartType.Point;
                 chart1.Series[name + "1"].Color = Color.FromName(colour);
+
                 foreach ((long, double) point in points)
                 {
                     chart1.Series[name + "1"].Points.AddXY(point.Item1, point.Item2);
                 }
             }
         }
-
         public void AddRegressionCurve(List<double> equation, long startDate, string nameOfStock)
         {
-            //Need to input: equation of the curve, start of regression, name of stock
             bool duplicate = false;
             string colour = colours[r.Next(0, colours.Length)];
             string name = nameOfStock + " prediction";
+
             foreach (string name2 in names)
             {
                 while (true)
                 {
-
                     if (name == name2)
                     {
 
                         name = name + "2";
                     }
-
                     else
                     {
                         break;
@@ -110,15 +101,28 @@ namespace NEA_prototype
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Line;
                 chart1.Series[name].Color = Color.FromName(colour);
+
                 Console.WriteLine("Now choosing date that you want to see the prediction up to.");
                 long endDate = ConvertToUNIXMilli();
+
                 for (long i = startDate; i < endDate; i+=86400000)
                 {
                     double predictiedValue = 0;
+
                     for(int j = 0; j < equation.Count; j++)
                     {
-                        predictiedValue += equation[j] * Math.Pow(i, j);
+                        predictiedValue += (double)(equation[j] * Math.Pow(i, j));
                     }
+
+                    if (predictiedValue < 0)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        chart1.Series[name].Points.AddXY(i, predictiedValue);
+                    }
+                    /*
                     try
                     {
                         chart1.Series[name].Points.AddXY(i, double.Parse(predictiedValue.ToString()));
@@ -127,14 +131,15 @@ namespace NEA_prototype
                     {
                         break;
                     }
+                    */
                 }
             }
         }
-
         public static long ConvertToUNIXMilli()
         {
             long unix = 0;
             string[] seperated;
+
             while (true)
             {
                 try
@@ -146,6 +151,7 @@ namespace NEA_prototype
                     {
                         throw new FormatException();
                     }
+
                     break;
                 }
                 catch (System.FormatException)
@@ -156,12 +162,20 @@ namespace NEA_prototype
 
             for (int i = 1971; i <= int.Parse(seperated[0]); i++)
             {
-                if (i % 4 == 0) unix += 86400 * 366;
-
-                else unix += 86400 * 365;
+                if (i % 4 == 0)
+                {
+                    unix += 86400 * 366;
+                }
+                else
+                {
+                    unix += 86400 * 365;
+                }
             }
+
             unix += (long.Parse(seperated[2]) - 1) * 86400;
+
             long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
             for (int i = 0; i < int.Parse(seperated[1]) - 1; i++)
             {
                 unix += daysInMonth[i] * 86400;
