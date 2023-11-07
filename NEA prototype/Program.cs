@@ -9,7 +9,7 @@ namespace NEA_prototype
 {
     class InfoAboutStock
     {
-        string ticker { get; set; }
+        public string ticker { get; set; }
         int queryCount { get; set; }
         int resultsCount { get; set; }
         bool adjusted { get; set; }
@@ -31,12 +31,12 @@ namespace NEA_prototype
     class prices
     {
         double v { get; set; }
-        double vw { get; set; }
+        public double vw { get; set; }
         double o { get; set; }
         double c { get; set; }
         double h { get; set; }
         double l { get; set; }
-        long t { get; set; }
+        public long t { get; set; }
         int n { get; set; }
 
         //t is the time stamp for the start of the window in UNIXMilli 
@@ -84,6 +84,10 @@ namespace NEA_prototype
                 {
                     Console.WriteLine("Please enter a response in the correct format --> positive int");
                 }
+                catch(System.OverflowException)
+                {
+                    Console.WriteLine("Program not able to handle that many graphs please enter a smaller postive int");
+                }
             }
 
             for (int i = 0; i < numOfStocks; i++)
@@ -98,11 +102,9 @@ namespace NEA_prototype
 
                     foreach (prices pr in valuesOfStock1)
                     {
-                        points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                        points1.Add((pr.t, pr.vw));
                     }
-
-                    GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.GetTicker());
-                    stockNames.Add(infoAboutStock1.GetTicker());
+                    stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
                     }
                 else if (choice == 2)
@@ -114,9 +116,7 @@ namespace NEA_prototype
                     {
                         points1.Add((pr.GetTime(), pr.GetAveragePrice()));
                     }
-
-                    GraphOfStockValue.AddNewSeries(points1, infoAboutStock1.GetTicker());
-                    stockNames.Add(infoAboutStock1.GetTicker());
+                    stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
                 }
                 else
@@ -125,9 +125,10 @@ namespace NEA_prototype
                 }
             }
 
-            int howToDisplay;
+            int howToDisplay = 0;
+            bool exitLoop = false;
 
-            while (true)
+            while (!exitLoop)
             {
                 try
                 {
@@ -139,7 +140,7 @@ namespace NEA_prototype
                         throw new FormatException();
                     }
 
-                    break;
+                    exitLoop = true;
                 }
                 catch (System.FormatException)
                 {
@@ -153,27 +154,39 @@ namespace NEA_prototype
             {
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                        List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
-                        GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    GraphOfStockValue.AddNewSeries(stockPrices[i], stockNames[i]);
+                    List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
+                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
                 }
 
                 GraphOfStockValue.ShowDialog();
             }
             else if (howToDisplay == 2)
             {
-                DisplayTable(stockPrices);
+                List<List<double>> listOfCurves = new List<List<double>>();
+                for (int i = 0; i < stockNames.Count; i++)
+                {
+                    listOfCurves.Add(p.DoPolynomialRegression(stockPrices[i]));
+                }
+
+                DisplayTable(stockPrices, stockNames,listOfCurves);
                 Console.ReadKey();
             }
             else
             {
-                DisplayTable(stockPrices);
+                List<List<double>> listOfCurves = new List<List<double>>();
+
 
                 for (int i = 0; i < stockNames.Count; i++)
                 {
-                        List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
-                        GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    GraphOfStockValue.AddNewSeries(stockPrices[i], stockNames[i]);
+                    List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
+                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    listOfCurves.Add(coeffcients);
                 }
+                DisplayTable(stockPrices, stockNames, listOfCurves);
 
+                Console.WriteLine("\n\nPlease press enter when you would like to see the graph");
                 Console.ReadKey();
                 GraphOfStockValue.ShowDialog();
             }
@@ -261,48 +274,81 @@ namespace NEA_prototype
             while (true)
             {
                 output = "https://api.polygon.io/v2/aggs/ticker/";
-                Console.WriteLine("Please enter the ticker for the stock on the NASDAQ.");
-                output += Console.ReadLine() + "/range/1/";
-
-                Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quater, year.");
-                output += Console.ReadLine() + "/";
-
-                string regEx = "\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d";
-                while (true)
+                string regExDate = "\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d";
+                string regExWords = "[a-zA-Z]+";
+                string regExTicker = "\\w+";
+                bool exitLoop = false;
+                while (!exitLoop)
+                {
+                    Console.WriteLine("Please enter the ticker for the stock on the NASDAQ.");
+                    string buffer = Console.ReadLine();
+                    if (Regex.IsMatch(buffer, regExTicker))
+                    {
+                        output += buffer + "/";
+                        exitLoop = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("ticker in incorrect format");
+                    }
+                }
+                exitLoop = false;
+                while (!exitLoop)
+                {
+                    Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quater, year.");
+                    string buffer = Console.ReadLine();
+                    if (Regex.IsMatch(buffer, regExWords))
+                    {
+                        output += buffer + "/";
+                        exitLoop = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine("time span in incorrect format");
+                    }
+                }
+                exitLoop = false;
+                while (!exitLoop)
                 {
                     Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
                     string buffer = Console.ReadLine();
 
-                    if (Regex.IsMatch(buffer, regEx))
+                    if (Regex.IsMatch(buffer, regExDate))
                     {
                         output += buffer + "/";
-                        break;
+                        exitLoop = true;
                     }
                     else
                     {
                         Console.WriteLine("date in incorrect format");
                     }
                 }
-                while (true)
+                exitLoop = false;
+                while (!exitLoop)
                 {
                     Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
                     string buffer = Console.ReadLine();
-                    if (Regex.IsMatch(buffer, regEx))
+                    if (Regex.IsMatch(buffer, regExDate))
                     {
                         output += buffer + "/";
-                        break;
+                        exitLoop = true;
                     }
                     else
                     {
                         Console.WriteLine("date in incorrect format");
                     }
                 }
+                exitLoop = false;
 
                 output += "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
 
-                Console.WriteLine("The API request is: " + output);
-                while (true)
+
+                exitLoop = false;
+                while (!exitLoop)
                 {
+                    Console.WriteLine("The API request is: " + output);
+
+
                     Console.WriteLine("Is this correct?\ny or n");
 
                     string response = Console.ReadLine();
@@ -316,6 +362,7 @@ namespace NEA_prototype
                         Console.WriteLine("Remaking API url");
                         System.Threading.Thread.Sleep(1000);
                         Console.Clear();
+                        exitLoop = true;
                     }
                     else
                     {
@@ -328,27 +375,24 @@ namespace NEA_prototype
         public static long ConvertToUNIXMilli()
         {
             long unix = 0;
-            string[] seperated;
+            string[] seperated = new string[3];
+            bool exitLoop = false;
+            string regExDate = "\\d\\d\\d\\d\\-\\d\\d\\-\\d\\d";
 
-            while (true)
+
+            while (!exitLoop)
             {
-                try
+                Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                string buffer = Console.ReadLine();
+
+                if (Regex.IsMatch(buffer, regExDate))
                 {
-                    Console.WriteLine("Please enter the date in the form yyyy-mm-dd");
-                    
-                    string yyyymmdd = Console.ReadLine();
-                    
-                    seperated = yyyymmdd.Split('-');
-                    
-                    if (seperated.Length != 3)
-                    {
-                        throw new FormatException();
-                    }
-                    break;
+                    seperated = buffer.Split('-');
+                    exitLoop = true;
                 }
-                catch (System.FormatException)
+                else
                 {
-                    Console.WriteLine("Please enter a response in the correct format --> yyyy-mm-dd");
+                    Console.WriteLine("date in incorrect format");
                 }
             }
 
@@ -493,14 +537,13 @@ namespace NEA_prototype
                 }   
             }
         }
-        public static void DisplayTable(List<List<(long, double)>> prices)
+        public static void DisplayTable(List<List<(long, double)>> prices, List<string> stockNames,List<List<double>> coeffcients)
         {
             List<(long, double)> userDefinedDates = new List<(long, double)>();
             int count = 1;
+            bool exitLoop = false;
 
-            Console.Clear();
-
-            while(true)
+            while(!exitLoop)
             {
                 Console.Write("Would you like to find the price for a certain day? (y/n)");
 
@@ -510,29 +553,36 @@ namespace NEA_prototype
                 }
                 else
                 {
-                    break;
+                    exitLoop = true;
                 }
             }
 
             Console.Clear();
             Console.Write("Date");
-            Console.SetCursorPosition(13, 0);
-            Console.Write("| Price");
-            Console.WriteLine();
+
+            for(int i = 0;i < stockNames.Count;i++)
+            {
+                Console.SetCursorPosition(5+(i+1)*8,0);
+                Console.Write("| " + stockNames[i]);
+            }
+
             for (int i = 0; i < prices[0].Count; i += prices[0].Count / 20)
             {
                 Console.SetCursorPosition(0, count);
                 Console.Write(ConvertToyyyymmdd(prices[0][i].Item1));
-                Console.SetCursorPosition(13, count);
+                for (int j = 0; j < prices.Count; j++)
+                {
+                    Console.SetCursorPosition(5 + (j + 1) * 8, count);
 
-                string buffer = Math.Round(double.Parse(prices[0][i].Item2.ToString()), 2).ToString();
-                if (buffer[buffer.Length - 2] == '.')
-                {
-                    Console.Write("| " + buffer + "0");
-                }
-                else
-                {
-                    Console.Write("| " + buffer);
+                    string buffer = Math.Round(double.Parse(prices[j][i].Item2.ToString()), 2).ToString();
+                    if (buffer[buffer.Length - 2] == '.')
+                    {
+                        Console.Write("| " + buffer + "0");
+                    }
+                    else
+                    {
+                        Console.Write("| " + buffer);
+                    }
                 }
 
                 count++;
@@ -540,21 +590,25 @@ namespace NEA_prototype
             for (int i = 0; i < userDefinedDates.Count; i ++)
             {
                 Console.SetCursorPosition(0, count);
-                Console.Write(ConvertToyyyymmdd(userDefinedDates[i].Item1));
-                Console.SetCursorPosition(13, count);
+                Console.Write(ConvertToyyyymmdd(prices[0][i].Item1));
+                for (int j = 0; j < prices.Count; j++)
+                {
+                    Console.SetCursorPosition(5 + (j + 1) * 8, count);
 
-                string buffer = Math.Round(double.Parse(userDefinedDates[i].Item2.ToString()), 2).ToString();
-                if (buffer[buffer.Length - 2] == '.')
-                {
-                    Console.Write("| " + buffer + "0");
+                    string buffer = Math.Round(double.Parse(userDefinedDates[i].Item2.ToString()), 2).ToString();
+                    if (buffer[buffer.Length - 2] == '.')
+                    {
+                        Console.Write("| " + buffer + "0");
+                    }
+                    else
+                    {
+                        Console.Write("| " + buffer);
+                    }
                 }
-                else
-                {
-                    Console.Write("| " + buffer);
-                }
-                count++;
             }
 
+
+            //DO FUTURE VALUES OF STOCK HERE
             Console.WriteLine();
         }
     }

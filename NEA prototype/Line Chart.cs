@@ -54,6 +54,7 @@ namespace NEA_prototype
             if (!duplicate)
             {
                 names.Add(name);
+                
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Spline;
                 chart1.Series[name].Color = Color.FromName(colour);
@@ -102,9 +103,9 @@ namespace NEA_prototype
                 chart1.Series[name].ChartType = SeriesChartType.Line;
                 chart1.Series[name].Color = Color.FromName(colour);
 
-                Console.WriteLine("Now choosing date that you want to see the prediction up to.");
-                long endDate = ConvertToUNIXMilli();
-
+                //Console.WriteLine("Now choosing date that you want to see the prediction up to.");
+                //long endDate = ConvertToUNIXMilli();
+                long endDate = 1704067200000;
                 for (long i = startDate; i < endDate; i+=86400000)
                 {
                     double predictiedValue = 0;
