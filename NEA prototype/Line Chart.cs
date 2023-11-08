@@ -105,7 +105,9 @@ namespace NEA_prototype
 
                 Console.WriteLine("Now choosing date that you want to see the prediction up to.");
                 long endDate = Program.ConvertToUNIXMilli();
-                for (long i = startDate; i < endDate; i += 86400000)
+                Console.WriteLine(startDate);
+                Console.WriteLine(endDate);
+                for (long i = startDate; i < endDate; i += 86400)
                 {
                     double predictiedValue = 0;
 

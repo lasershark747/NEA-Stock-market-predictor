@@ -75,7 +75,7 @@ namespace NEA_prototype
 
                     numOfStocks = int.Parse(Console.ReadLine());
 
-                    if (numOfStocks < 1)
+                    if (numOfStocks < 1|| numOfStocks > 8)
                     {
                         throw new FormatException();
                     }
@@ -84,7 +84,7 @@ namespace NEA_prototype
                 }
                 catch (System.FormatException)
                 {
-                    Console.WriteLine("Please enter a response in the correct format --> positive int");
+                    Console.WriteLine("Please enter a response in the correct format --> 1-8");
                 }
                 catch(System.OverflowException)
                 {
@@ -104,7 +104,7 @@ namespace NEA_prototype
 
                     foreach (prices pr in valuesOfStock1)
                     {
-                        points1.Add((pr.t, pr.vw));
+                        points1.Add((pr.t/1000, pr.vw));
                     }
                     stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
@@ -116,7 +116,7 @@ namespace NEA_prototype
                     List<(long, double)> points1 = new List<(long, double)>();
                     foreach (prices pr in valuesOfStock1)
                     {
-                        points1.Add((pr.GetTime(), pr.GetAveragePrice()));
+                        points1.Add((pr.GetTime()/1000, pr.GetAveragePrice()));
                     }
                     stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
@@ -157,7 +157,7 @@ namespace NEA_prototype
                 {
                     GraphOfStockValue.AddNewSeries(stockPrices[i], stockNames[i]);
                     List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
-                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000, stockNames[i]);
                 }
 
                 GraphOfStockValue.ShowDialog();
@@ -181,7 +181,7 @@ namespace NEA_prototype
                 {
                     GraphOfStockValue.AddNewSeries(stockPrices[i], stockNames[i]);
                     List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
-                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000000, stockNames[i]);
+                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000, stockNames[i]);
                     listOfCurves.Add(coeffcients);
                 }
                 DisplayTable(stockPrices, stockNames, listOfCurves);
@@ -282,7 +282,7 @@ namespace NEA_prototype
                     string buffer = Console.ReadLine();
                     if (Regex.IsMatch(buffer, regExTicker))
                     {
-                        output += buffer + "/";
+                        output += buffer + "/range/1/";
                         exitLoop = true;
                     }
                     else
@@ -328,7 +328,7 @@ namespace NEA_prototype
                     string buffer = Console.ReadLine();
                     if (Regex.IsMatch(buffer, regExDate))
                     {
-                        output += buffer + "/";
+                        output += buffer;
                         exitLoop = true;
                     }
                     else
@@ -377,7 +377,7 @@ namespace NEA_prototype
             long unix = 0;
             string[] seperated = new string[3];
             bool exitLoop = false;
-            string regExDate = "202[1-3]\\-[(0[1-9])(1[0-2])]\\-([0-2]\\d)|(3[01])";
+            string regExDate = "202[4-9]\\-(0[1-9])|(1[0-2])\\-([0-2]\\d)|(3[01])";
 
 
             while (!exitLoop)
@@ -413,11 +413,10 @@ namespace NEA_prototype
 
             unix += (long.Parse(seperated[2]) - 1) * 86400;
 
-            return (unix+4*60*60)*1000;
+            return (unix+4*60*60);
         }
         public static string ConvertToyyyymmdd(long unixTime)
         {
-            unixTime /= 1000;
             unixTime -= 4 * 60 * 60;
             string date = "";
             int year = 1970;

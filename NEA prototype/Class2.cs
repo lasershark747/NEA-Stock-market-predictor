@@ -12,11 +12,12 @@ namespace NEA_prototype
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
 
-            for (int x = 1; x <= 4; x++)
+            for (int x = 1; x <= 8; x++)
             {
                 List<double> coefficients = new List<double>();
                 BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
                 BigFloat[] matrixB = new BigFloat[x + 1];
+                bool outOFRange = false;
 
                 for (int i = 0; i < matrixA.GetLength(0); i++)
                 {
@@ -46,22 +47,23 @@ namespace NEA_prototype
                     double sum = 0;
 
                     for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
-                    {
+                    {                        
                         if (inverseMatrixA[i, j] * matrixB[j] < double.MinValue)
                         {
-                            Console.WriteLine(inverseMatrixA[i, j] * matrixB[j]);
-                            sum += double.MinValue;
+                            outOFRange = true;
                         }
                         else
                         {
                             sum += (double)(inverseMatrixA[i, j] * matrixB[j]);
                         }
+                        
                     }
-
                     coefficients.Add(sum);
                 }
-
-                ListOfCoefficients.Add(coefficients);
+                if (!outOFRange)
+                {
+                    ListOfCoefficients.Add(coefficients);
+                }
             }
 
             int bestLine = 0;
