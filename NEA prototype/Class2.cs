@@ -62,12 +62,13 @@ namespace NEA_prototype
                 }
                 if (!outOFRange)
                 {
+                    Console.WriteLine("Degree " + x + " polynomial has been succesfully generated");
                     ListOfCoefficients.Add(coefficients);
                 }
             }
 
             int bestLine = 0;
-            double bestVariance = 99999999999;
+            double bestVariance = double.MaxValue;
 
             for (int i = 0; i < ListOfCoefficients.Count; i++)
             {

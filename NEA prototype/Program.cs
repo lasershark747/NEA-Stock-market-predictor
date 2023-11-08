@@ -88,8 +88,8 @@ namespace NEA_prototype
                 }
                 catch(System.OverflowException)
                 {
-                    Console.WriteLine("Program not able to handle that many graphs please enter a smaller postive int");
-                }
+                    Console.WriteLine("Please enter a response in the correct format --> 1-8");
+                 }
             }
             exitLoop = false;
             for (int i = 0; i < numOfStocks; i++)

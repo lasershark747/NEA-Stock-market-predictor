@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -12,6 +11,7 @@ namespace NEA_prototype
         List<string> names = new List<string>();
         string[] colours;
         private Random r = new Random();
+        private long endDate;
 
         public Line_Chart()
         {
@@ -94,7 +94,6 @@ namespace NEA_prototype
                         break;
                     }
                 }
-
             }
             if (!duplicate)
             {
@@ -102,11 +101,13 @@ namespace NEA_prototype
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Line;
                 chart1.Series[name].Color = Color.FromName(colour);
+                
+                if (endDate == 0)
+                {
+                    Console.WriteLine("Now choosing date that you want to see the prediction up to.");
+                    endDate = Program.ConvertToUNIXMilli();
+                }
 
-                Console.WriteLine("Now choosing date that you want to see the prediction up to.");
-                long endDate = Program.ConvertToUNIXMilli();
-                Console.WriteLine(startDate);
-                Console.WriteLine(endDate);
                 for (long i = startDate; i < endDate; i += 86400)
                 {
                     double predictiedValue = 0;
@@ -124,16 +125,6 @@ namespace NEA_prototype
                     {
                         chart1.Series[name].Points.AddXY(i, predictiedValue);
                     }
-                    /*
-                    try
-                    {
-                        chart1.Series[name].Points.AddXY(i, double.Parse(predictiedValue.ToString()));
-                    }
-                    catch
-                    {
-                        break;
-                    }
-                    */
                 }
             }
         }
