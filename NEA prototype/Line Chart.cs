@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Forms.DataVisualization.Charting;
 
@@ -9,7 +10,7 @@ namespace NEA_prototype
     public partial class Line_Chart : Form
     {
         List<string> names = new List<string>();
-        string[] colours; 
+        string[] colours;
         private Random r = new Random();
 
         public Line_Chart()
@@ -24,7 +25,7 @@ namespace NEA_prototype
             colours = colourList.Split('.');
         }
 
-        private void Line_Chart_Load(object sender, EventArgs e) {}
+        private void Line_Chart_Load(object sender, EventArgs e) { }
 
         public void AddNewSeries(List<(long, double)> points, string name)
         {
@@ -54,7 +55,7 @@ namespace NEA_prototype
             if (!duplicate)
             {
                 names.Add(name);
-                
+
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Spline;
                 chart1.Series[name].Color = Color.FromName(colour);
@@ -86,7 +87,6 @@ namespace NEA_prototype
                 {
                     if (name == name2)
                     {
-
                         name = name + "2";
                     }
                     else
@@ -103,14 +103,13 @@ namespace NEA_prototype
                 chart1.Series[name].ChartType = SeriesChartType.Line;
                 chart1.Series[name].Color = Color.FromName(colour);
 
-                //Console.WriteLine("Now choosing date that you want to see the prediction up to.");
-                //long endDate = ConvertToUNIXMilli();
-                long endDate = 1704067200000;
-                for (long i = startDate; i < endDate; i+=86400000)
+                Console.WriteLine("Now choosing date that you want to see the prediction up to.");
+                long endDate = Program.ConvertToUNIXMilli();
+                for (long i = startDate; i < endDate; i += 86400000)
                 {
                     double predictiedValue = 0;
 
-                    for(int j = 0; j < equation.Count; j++)
+                    for (int j = 0; j < equation.Count; j++)
                     {
                         predictiedValue += (double)(equation[j] * Math.Pow(i, j));
                     }
@@ -135,54 +134,6 @@ namespace NEA_prototype
                     */
                 }
             }
-        }
-        public static long ConvertToUNIXMilli()
-        {
-            long unix = 0;
-            string[] seperated;
-
-            while (true)
-            {
-                try
-                {
-                    Console.WriteLine("Please enter the date in the form yyyy-mm-dd");
-                    string yyyymmdd = Console.ReadLine();
-                    seperated = yyyymmdd.Split('-');
-                    if (seperated.Length != 3)
-                    {
-                        throw new FormatException();
-                    }
-
-                    break;
-                }
-                catch (System.FormatException)
-                {
-                    Console.WriteLine("Please enter a response in the correct format --> yyyy-mm-dd");
-                }
-            }
-
-            for (int i = 1971; i <= int.Parse(seperated[0]); i++)
-            {
-                if (i % 4 == 0)
-                {
-                    unix += 86400 * 366;
-                }
-                else
-                {
-                    unix += 86400 * 365;
-                }
-            }
-
-            unix += (long.Parse(seperated[2]) - 1) * 86400;
-
-            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-            for (int i = 0; i < int.Parse(seperated[1]) - 1; i++)
-            {
-                unix += daysInMonth[i] * 86400;
-            }
-
-            return (unix + 4 * 60 * 60) * 1000;
         }
     }
 }
