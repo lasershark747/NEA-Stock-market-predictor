@@ -34,22 +34,17 @@ namespace NEA_prototype
 
             foreach (string name2 in names)
             {
-                if (name == name2)
+                while (true)
                 {
-                    Console.WriteLine("A series with the same name already exists.");
-                    Console.WriteLine("Would you like to still display the graph? \ny or n");
-
-                    if (Console.ReadLine() == "n")
-                    {
-                        duplicate = true;
-                    }
-                    else
+                    if (name == name2)
                     {
                         name = name + "2";
                     }
-                    break;
+                    else
+                    {
+                        break;
+                    }
                 }
-
             }
 
             if (!duplicate)
@@ -78,6 +73,7 @@ namespace NEA_prototype
         public void AddRegressionCurve(List<double> equation, long startDate, string nameOfStock)
         {
             bool duplicate = false;
+
             string colour = colours[r.Next(0, colours.Length)];
             string name = nameOfStock + " prediction";
 
@@ -95,6 +91,7 @@ namespace NEA_prototype
                     }
                 }
             }
+
             if (!duplicate)
             {
                 names.Add(name);

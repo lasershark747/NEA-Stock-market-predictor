@@ -12,11 +12,13 @@ namespace NEA_prototype
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
 
-            for (int x = 1; x <= 8; x++)
+            for (int x = 1; x <= 4; x++)
             {
                 List<double> coefficients = new List<double>();
+
                 BigFloat[,] matrixA = new BigFloat[x + 1, x + 1];
                 BigFloat[] matrixB = new BigFloat[x + 1];
+
                 bool outOFRange = false;
 
                 for (int i = 0; i < matrixA.GetLength(0); i++)
@@ -24,10 +26,12 @@ namespace NEA_prototype
                     for (int j = 0; j < matrixA.GetLength(0); j++)
                     {
                         double sumOfx = 0;
+
                         foreach ((long, double) coordinate in points)
                         {
                             sumOfx += Math.Pow(coordinate.Item1, i + j);
                         }
+
                         matrixA[i, j] = sumOfx;
                     }
 
@@ -37,6 +41,7 @@ namespace NEA_prototype
                     {
                         sumOfxy += Math.Pow(coordinate.Item1, i) * coordinate.Item2;
                     }
+
                     matrixB[i] = sumOfxy;
                 }
 
@@ -58,8 +63,10 @@ namespace NEA_prototype
                         }
                         
                     }
+
                     coefficients.Add(sum);
                 }
+
                 if (!outOFRange)
                 {
                     Console.WriteLine("Degree " + x + " polynomial has been succesfully generated");
@@ -74,6 +81,7 @@ namespace NEA_prototype
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
                 double variance = s.Residuals();
+
                 if (bestVariance > variance)
                 {
                     bestVariance = variance;
@@ -107,7 +115,6 @@ namespace NEA_prototype
                     {
                         if (i % 2 == j % 2)
                         {
-
                             inverse[i, j] = Determinant(Cofactor(matrix, i, j)) / det;
                         }
                         else
