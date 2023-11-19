@@ -76,7 +76,7 @@ namespace NEA_prototype
 
                     if (numOfStocks < 1 || numOfStocks > 8)
                     {
-                        throw new FormatException();
+                        throw new OverflowException();
                     }
 
                     exitLoop = true;
@@ -96,17 +96,30 @@ namespace NEA_prototype
             for (int i = 0; i < numOfStocks; i++)
             {
                 int choice = LoadMenu();
-
                 if (choice == 1)
                 {
-                    InfoAboutStock infoAboutStock1 = DoAPIRequest(1);
-                    prices[] valuesOfStock1 = infoAboutStock1.results;
+                    InfoAboutStock infoAboutStock1 = new InfoAboutStock();
                     List<(long, double)> points1 = new List<(long, double)>();
-
-                    foreach (prices pr in valuesOfStock1)
+                    while (!exitLoop)
                     {
-                        points1.Add((pr.t / 1000, pr.vw));
-                    }
+                        infoAboutStock1 = DoAPIRequest(1);
+                        prices[] valuesOfStock1 = infoAboutStock1.results;
+                        points1 = new List<(long, double)>();
+
+                        if (valuesOfStock1.Length > 0)
+                        {
+                            foreach (prices pr in valuesOfStock1)
+                            {
+                                points1.Add((pr.t / 1000, pr.vw));
+                            }
+                            exitLoop = true;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Please enter a valid ticker for the NASDAQ in the correct capitilisation");
+                        }
+
+                    } 
 
                     stockNames.Add(infoAboutStock1.ticker);
                     stockPrices.Add(points1);
@@ -179,7 +192,6 @@ namespace NEA_prototype
             else
             {
                 List<List<double>> listOfCurves = new List<List<double>>();
-
 
                 for (int i = 0; i < stockNames.Count; i++)
                 {
@@ -319,42 +331,61 @@ namespace NEA_prototype
                     }
                 }
 
-                exitLoop = false;
 
-                while (!exitLoop)
+                bool exitBiggerLoop = false;
+                string dates = "";
+
+                while (!exitBiggerLoop)
                 {
-                    Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
-                    string buffer = Console.ReadLine();
+                    exitLoop = false;
+                    long startDate = 0;
+                    long endDate = 0;
 
-                    if (Regex.IsMatch(buffer, regExDate))
+                    while (!exitLoop)
                     {
-                        output += buffer + "/";
-                        exitLoop = true;
+                        Console.WriteLine("Please enter the start date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                        string buffer = Console.ReadLine();
+
+                        if (Regex.IsMatch(buffer, regExDate))
+                        {
+                            dates += buffer + "/";
+                            exitLoop = true;
+                            startDate = ConvertToUNIXMilli2(buffer);
+                        }
+                        else
+                        {
+                            Console.WriteLine("date in incorrect format or is out of range");
+                        }
+                    }
+
+                    exitLoop = false;
+
+                    while (!exitLoop)
+                    {
+                        Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
+                        string buffer = Console.ReadLine();
+                        if (Regex.IsMatch(buffer, regExDate))
+                        {
+                            dates += buffer;
+                            exitLoop = true;
+                            endDate = ConvertToUNIXMilli2(buffer);
+
+                        }
+                        else
+                        {
+                            Console.WriteLine("date in incorrect format or is out of range");
+                        }
+                    }
+                    if (startDate < endDate)
+                    {
+                        exitBiggerLoop = true;
                     }
                     else
                     {
-                        Console.WriteLine("date in incorrect format or is out of range");
+                        Console.WriteLine("The end date needs to be after the start date");
                     }
                 }
-
-                exitLoop = false;
-                
-                while (!exitLoop)
-                {
-                    Console.WriteLine("Please enter the end date for the analysis.\nPlease enter all dates in the form yyyy-mm-dd.");
-                    string buffer = Console.ReadLine();
-                    if (Regex.IsMatch(buffer, regExDate))
-                    {
-                        output += buffer;
-                        exitLoop = true;
-                    }
-                    else
-                    {
-                        Console.WriteLine("date in incorrect format or is out of range");
-                    }
-                }
-
-                output += "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                output += dates + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
 
                 exitLoop = false;
                 while (!exitLoop)
@@ -394,7 +425,7 @@ namespace NEA_prototype
             long unix = 0;
             string[] seperated = new string[3];
             bool exitLoop = false;
-            string regExDate = "202[4-9]\\-(0[1-9])|(1[0-2])\\-([0-2]\\d)|(3[01])";
+            string regExDate = "202[1-9]\\-(0[1-9])|(1[0-2])\\-([0-2]\\d)|(3[01])";
 
 
             while (!exitLoop)
@@ -435,6 +466,36 @@ namespace NEA_prototype
             unix += (long.Parse(seperated[2]) - 1) * 86400;
 
             return (unix+4*60*60);
+        }
+        public static long ConvertToUNIXMilli2(string date)
+        {
+            long unix = 0;
+            string[] seperated = new string[3];
+
+            seperated = date.Split('-');
+
+            for (int i = 1971; i <= int.Parse(seperated[0]); i++)
+            {
+                if (i % 4 == 0)
+                {
+                    unix += 86400 * 366;
+                }
+                else
+                {
+                    unix += 86400 * 365;
+                }
+            }
+
+            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+
+            for (int i = 0; i < int.Parse(seperated[1]) - 1; i++)
+            {
+                unix += daysInMonth[i] * 86400;
+            }
+
+            unix += (long.Parse(seperated[2]) - 1) * 86400;
+
+            return unix;
         }
         public static string ConvertToyyyymmdd(long unixTime)
         {
