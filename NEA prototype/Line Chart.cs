@@ -12,11 +12,14 @@ namespace NEA_prototype
         string[] colours;
         private Random r = new Random();
         private long endDate;
+        private long offset;
 
-        public Line_Chart()
+        public Line_Chart(long offset)
         {
             InitializeComponent();
             GenerateColours();
+            label1.Text = "The scale for the x-axis of the graph is in UNIX time";
+            this.offset = offset;
         }
 
         private void GenerateColours()
@@ -98,11 +101,11 @@ namespace NEA_prototype
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Line;
                 chart1.Series[name].Color = Color.FromName(colour);
-                
+                Console.WriteLine();
                 if (endDate == 0)
                 {
                     Console.WriteLine("Now choosing date that you want to see the prediction up to.");
-                    endDate = Program.ConvertToUNIXMilli();
+                    endDate = Program.ConvertToUNIX()-offset;
                 }
 
                 for (long i = startDate; i < endDate; i += 86400)
@@ -125,5 +128,7 @@ namespace NEA_prototype
                 }
             }
         }
+
+        
     }
 }

@@ -12,7 +12,7 @@ namespace NEA_prototype
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
 
-            for (int x = 1; x <= 4; x++)
+            for (int x = 1; x <= 10; x++)
             {
                 List<double> coefficients = new List<double>();
 
@@ -20,7 +20,7 @@ namespace NEA_prototype
                 BigFloat[] matrixB = new BigFloat[x + 1];
 
                 bool outOFRange = false;
-
+                
                 for (int i = 0; i < matrixA.GetLength(0); i++)
                 {
                     for (int j = 0; j < matrixA.GetLength(0); j++)
@@ -33,6 +33,7 @@ namespace NEA_prototype
                         }
 
                         matrixA[i, j] = sumOfx;
+                        
                     }
 
                     double sumOfxy = 0;
@@ -44,7 +45,6 @@ namespace NEA_prototype
 
                     matrixB[i] = sumOfxy;
                 }
-
                 BigFloat[,] inverseMatrixA = Inverse(matrixA);
 
                 for (int i = 0; i < inverseMatrixA.GetLength(0); i++)
@@ -63,7 +63,10 @@ namespace NEA_prototype
                         }
                         
                     }
-
+                    if(Double.IsNaN(sum))
+                    {
+                        outOFRange = true;
+                    }
                     coefficients.Add(sum);
                 }
 
@@ -81,14 +84,14 @@ namespace NEA_prototype
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
                 double variance = s.Residuals();
-
+                Console.WriteLine(i+1 + "  " + variance);
                 if (bestVariance > variance)
                 {
                     bestVariance = variance;
                     bestLine = i;
                 }
             }
-
+            
             return ListOfCoefficients[bestLine];
         }
 
@@ -98,7 +101,7 @@ namespace NEA_prototype
 
             if (matrix.GetLength(0) == 2)
             {
-                BigFloat det = Determinant(matrix);
+                double det = (double)Determinant(matrix);
                 inverse[0, 0] = matrix[1, 1] / det;
                 inverse[1, 1] = matrix[0, 0] / det;
                 inverse[0, 1] = -matrix[0, 1] / det;
@@ -107,23 +110,22 @@ namespace NEA_prototype
             }
             else
             {
-
                 BigFloat det = Determinant(matrix);
+                
                 for (int i = 0; i < matrix.GetLength(0); i++)
                 {
                     for (int j = 0; j < matrix.GetLength(0); j++)
                     {
                         if (i % 2 == j % 2)
                         {
-                            inverse[i, j] = Determinant(Cofactor(matrix, i, j)) / det;
+                            inverse[i, j] = (Determinant(Cofactor(matrix, i, j)) / det);
                         }
                         else
                         {
-                            inverse[i, j] = (-1) * Determinant(Cofactor(matrix, i, j)) / det;
+                            inverse[i, j] = -(Determinant(Cofactor(matrix, i, j)) / det);
                         }
                     }
                 }
-
                 inverse = Transpose(inverse);
             }
 
@@ -153,10 +155,9 @@ namespace NEA_prototype
                     }
                 }
             }
-
             return det;
         }
-        private BigFloat[,] Cofactor(BigFloat[,] matrix, BigFloat row, BigFloat coloum)
+        private BigFloat[,] Cofactor(BigFloat[,] matrix, double row, double coloum)
         {
             BigFloat[,] cofactorMatrix = new BigFloat[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
 

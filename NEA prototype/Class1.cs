@@ -21,11 +21,10 @@ namespace NEA_prototype
             for (int i = 0; i < data.Count; i++)
             {
                 double predicted = FOfX(data[i].Item1);
-                sum += data[i].Item2 - predicted * predicted;
+                sum += Math.Pow(data[i].Item2 - predicted,2);
             }
 
-            double variance = sum / (data.Count-curve.Count);         
-            
+            double variance = sum / (data.Count-curve.Count);
             return variance;
         }
 

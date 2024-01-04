@@ -55,7 +55,6 @@ namespace NEA_prototype
     {
         static void Main(string[] args)
         {
-            Line_Chart GraphOfStockValue = new Line_Chart();
             PolynomialRegression p = new PolynomialRegression();
 
             List<string> stockNames = new List<string>();
@@ -92,6 +91,7 @@ namespace NEA_prototype
             }
 
             exitLoop = false;
+            long offset = 0;
             
             for (int i = 0; i < numOfStocks; i++)
             {
@@ -108,9 +108,12 @@ namespace NEA_prototype
 
                         if (valuesOfStock1.Length > 0)
                         {
+                            long l = valuesOfStock1[0].GetTime() / 1000 - 86400;
+                            offset = l;
+
                             foreach (prices pr in valuesOfStock1)
                             {
-                                points1.Add((pr.t / 1000, pr.vw));
+                                points1.Add((pr.GetTime() / 1000 - l, pr.GetAveragePrice()));
                             }
                             exitLoop = true;
                         }
@@ -129,10 +132,12 @@ namespace NEA_prototype
                     InfoAboutStock infoAboutStock1 = DoAPIRequest(2);
                     prices[] valuesOfStock1 = infoAboutStock1.results;
                     List<(long, double)> points1 = new List<(long, double)>();
+                    long l = valuesOfStock1[0].GetTime() / 1000 - 86400;
+                    offset = l;
 
                     foreach (prices pr in valuesOfStock1)
                     {
-                        points1.Add((pr.GetTime() / 1000, pr.GetAveragePrice()));
+                        points1.Add((pr.GetTime() / 1000 - l, pr.GetAveragePrice()));
                     }
 
                     stockNames.Add(infoAboutStock1.ticker);
@@ -141,10 +146,13 @@ namespace NEA_prototype
                 else
                 {
                     Console.WriteLine("PLEASE READ THE MENU");
+                    i--;
                 }
             }
 
             int howToDisplay = 0;
+            
+            exitLoop=false;
 
             while (!exitLoop)
             {
@@ -168,42 +176,31 @@ namespace NEA_prototype
                 }
             }
 
-            if (howToDisplay == 1)
+            List<List<double>> listOfCurves = new List<List<double>>();
+            
+            for (int i = 0; i < stockNames.Count; i++)
+            {
+                listOfCurves.Add(p.DoPolynomialRegression(stockPrices[i]));
+            }
+
+
+            Line_Chart GraphOfStockValue = new Line_Chart(offset);
+
+            if (howToDisplay != 2)
             {
                 for (int i = 0; i < stockNames.Count; i++)
                 {
                     GraphOfStockValue.AddNewSeries(stockPrices[i], stockNames[i]);
-                    List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
-                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000, stockNames[i]);
+                    GraphOfStockValue.AddRegressionCurve(listOfCurves[i], 0, stockNames[i]);
                 }
-
                 GraphOfStockValue.ShowDialog();
             }
-            else if (howToDisplay == 2)
+
+            if (howToDisplay != 1)
             {
-                List<List<double>> listOfCurves = new List<List<double>>();
-                for (int i = 0; i < stockNames.Count; i++)
-                {
-                    listOfCurves.Add(p.DoPolynomialRegression(stockPrices[i]));
-                }
-
-                DisplayTable(stockPrices, stockNames,listOfCurves);
-            }
-            else
-            {
-                List<List<double>> listOfCurves = new List<List<double>>();
-
-                for (int i = 0; i < stockNames.Count; i++)
-                {
-                    GraphOfStockValue.AddNewSeries(stockPrices[i], stockNames[i]);
-                    List<double> coeffcients = p.DoPolynomialRegression(stockPrices[i]);
-                    GraphOfStockValue.AddRegressionCurve(coeffcients, 1641168000, stockNames[i]);
-                    listOfCurves.Add(coeffcients);
-                }
-
                 DisplayTable(stockPrices, stockNames, listOfCurves);
-                GraphOfStockValue.ShowDialog();
             }
+            
 
             Console.WriteLine("Goodbye");
             Console.ReadKey();
@@ -350,7 +347,7 @@ namespace NEA_prototype
                         {
                             dates += buffer + "/";
                             exitLoop = true;
-                            startDate = ConvertToUNIXMilli2(buffer);
+                            startDate = ConvertToUNIX2(buffer);
                         }
                         else
                         {
@@ -368,7 +365,7 @@ namespace NEA_prototype
                         {
                             dates += buffer;
                             exitLoop = true;
-                            endDate = ConvertToUNIXMilli2(buffer);
+                            endDate = ConvertToUNIX2(buffer);
 
                         }
                         else
@@ -420,7 +417,7 @@ namespace NEA_prototype
             return output;
         }
 
-        public static long ConvertToUNIXMilli()
+        public static long ConvertToUNIX()
         {
             long unix = 0;
             string[] seperated = new string[3];
@@ -467,7 +464,7 @@ namespace NEA_prototype
 
             return (unix+4*60*60);
         }
-        public static long ConvertToUNIXMilli2(string date)
+        public static long ConvertToUNIX2(string date)
         {
             long unix = 0;
             string[] seperated = new string[3];
@@ -575,6 +572,10 @@ namespace NEA_prototype
                 unixTime -= 24 * 3600;
                 day++;
             }
+            if(day ==0)
+            {
+                day++;
+            }
 
             if (day >= 10)
             {
@@ -641,7 +642,7 @@ namespace NEA_prototype
 
                 if (Console.ReadLine() == "y")
                 {
-                    userDefinedDates.Add(binarySearch(ConvertToUNIXMilli(), prices[0]));
+                    userDefinedDates.Add(binarySearch(ConvertToUNIX(), prices[0]));
                 }
                 else
                 {
@@ -650,7 +651,7 @@ namespace NEA_prototype
             }
 
             Console.WriteLine("Now setting when to see predicted values until.");
-            long endOfPrediction = ConvertToUNIXMilli();
+            long endOfPrediction = ConvertToUNIX();
 
 
             Console.Clear();
@@ -683,10 +684,12 @@ namespace NEA_prototype
 
                 count++;
             }
+
+
             for (int i = 0; i < userDefinedDates.Count; i ++)
             {
                 Console.SetCursorPosition(0, count);
-                Console.Write(ConvertToyyyymmdd(prices[0][i].Item1));
+                Console.Write(ConvertToyyyymmdd(userDefinedDates[i].Item1));
                 for (int j = 0; j < prices.Count; j++)
                 {
                     Console.SetCursorPosition(5 + (j + 1) * 8, count);
@@ -701,12 +704,13 @@ namespace NEA_prototype
                         Console.Write("| " + buffer);
                     }
                 }
+                count++;
             }
 
             Console.WriteLine("\nPredicted values below");
             count++;
 
-            for (long i = prices[0][prices[0].Count-1].Item1; i <endOfPrediction; i += 86400000*20)
+            for (long i = prices[0][prices[0].Count-1].Item1; i <endOfPrediction; i += 86400*20)
             {
                 Console.SetCursorPosition(0, count);
                 Console.Write(ConvertToyyyymmdd(i));
@@ -729,7 +733,6 @@ namespace NEA_prototype
 
                 count++;
             }
-
             Console.WriteLine();
         }
         public static double FOfX(long x, List<double> curve)
