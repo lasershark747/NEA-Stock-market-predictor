@@ -12,7 +12,7 @@ namespace NEA_prototype
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
 
-            for (int x = 1; x <= 10; x++)
+            for (int x = 1; x <= 6; x++)
             {
                 List<double> coefficients = new List<double>();
 

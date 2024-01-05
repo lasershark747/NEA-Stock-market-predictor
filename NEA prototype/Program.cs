@@ -110,7 +110,6 @@ namespace NEA_prototype
                         {
                             long l = valuesOfStock1[0].GetTime() / 1000 - 86400;
                             offset = l;
-
                             foreach (prices pr in valuesOfStock1)
                             {
                                 points1.Add((pr.GetTime() / 1000 - l, pr.GetAveragePrice()));
@@ -121,7 +120,6 @@ namespace NEA_prototype
                         {
                             Console.WriteLine("Please enter a valid ticker for the NASDAQ in the correct capitilisation");
                         }
-
                     } 
 
                     stockNames.Add(infoAboutStock1.ticker);
@@ -198,7 +196,7 @@ namespace NEA_prototype
 
             if (howToDisplay != 1)
             {
-                DisplayTable(stockPrices, stockNames, listOfCurves);
+                DisplayTable(stockPrices, stockNames, listOfCurves, offset);
             }
             
 
@@ -249,7 +247,7 @@ namespace NEA_prototype
                     }
                     else
                     {
-                        string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/NVDA/range/1/day/2022-01-01/2023-09-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                        string exampleAddress = "https://api.polygon.io/v2/aggs/ticker/NVDA/range/1/day/2023-01-01/2024-01-01?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
                         request = WebRequest.Create(exampleAddress);
                     }
 
@@ -347,7 +345,7 @@ namespace NEA_prototype
                         {
                             dates += buffer + "/";
                             exitLoop = true;
-                            startDate = ConvertToUNIX2(buffer);
+                            startDate = ConvertToUNIX(buffer);
                         }
                         else
                         {
@@ -365,7 +363,7 @@ namespace NEA_prototype
                         {
                             dates += buffer;
                             exitLoop = true;
-                            endDate = ConvertToUNIX2(buffer);
+                            endDate = ConvertToUNIX(buffer);
 
                         }
                         else
@@ -419,52 +417,29 @@ namespace NEA_prototype
 
         public static long ConvertToUNIX()
         {
-            long unix = 0;
-            string[] seperated = new string[3];
-            bool exitLoop = false;
             string regExDate = "202[1-9]\\-(0[1-9])|(1[0-2])\\-([0-2]\\d)|(3[01])";
 
-
-            while (!exitLoop)
+            while(true)
             {
                 Console.WriteLine("Please enter the date.\nPlease enter all dates in the form yyyy-mm-dd.");
                 string buffer = Console.ReadLine();
 
                 if (Regex.IsMatch(buffer, regExDate))
                 {
-                    seperated = buffer.Split('-');
-                    exitLoop = true;
+                    return Conversion(buffer);
                 }
                 else
                 {
                     Console.WriteLine("date in incorrect format or is out of range");
                 }
             }
-
-            for (int i = 1971; i <= int.Parse(seperated[0]); i++)
-            {
-                if (i % 4 == 0)
-                {
-                    unix += 86400 * 366;
-                }
-                else
-                {
-                    unix += 86400 * 365;
-                }
-            }
-
-            long[] daysInMonth = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-
-            for (int i = 0; i < int.Parse(seperated[1]) - 1; i++)
-            {
-                unix += daysInMonth[i] * 86400;
-            }
-
-            unix += (long.Parse(seperated[2]) - 1) * 86400;
-
-            return (unix+4*60*60);
         }
-        public static long ConvertToUNIX2(string date)
+        public static long ConvertToUNIX(string date)
+        {
+            return Conversion(date);
+        }
+
+        static long Conversion(string date)
         {
             long unix = 0;
             string[] seperated = new string[3];
@@ -629,7 +604,7 @@ namespace NEA_prototype
             }
             return trialList[max];
         }
-        public static void DisplayTable(List<List<(long, double)>> prices, List<string> stockNames,List<List<double>> coeffcients)
+        public static void DisplayTable(List<List<(long, double)>> prices, List<string> stockNames,List<List<double>> coeffcients, long offset)
         {
             List<(long, double)> userDefinedDates = new List<(long, double)>();
 
@@ -642,7 +617,7 @@ namespace NEA_prototype
 
                 if (Console.ReadLine() == "y")
                 {
-                    userDefinedDates.Add(binarySearch(ConvertToUNIX(), prices[0]));
+                    userDefinedDates.Add(binarySearch(ConvertToUNIX()+offset, prices[0]));
                 }
                 else
                 {
@@ -666,7 +641,7 @@ namespace NEA_prototype
             for (int i = 0; i < prices[0].Count; i += prices[0].Count / 20)
             {
                 Console.SetCursorPosition(0, count);
-                Console.Write(ConvertToyyyymmdd(prices[0][i].Item1));
+                Console.Write(ConvertToyyyymmdd(prices[0][i].Item1+offset));
                 for (int j = 0; j < prices.Count; j++)
                 {
                     Console.SetCursorPosition(5 + (j + 1) * 8, count);
@@ -689,7 +664,7 @@ namespace NEA_prototype
             for (int i = 0; i < userDefinedDates.Count; i ++)
             {
                 Console.SetCursorPosition(0, count);
-                Console.Write(ConvertToyyyymmdd(userDefinedDates[i].Item1));
+                Console.Write(ConvertToyyyymmdd(userDefinedDates[i].Item1 + offset));
                 for (int j = 0; j < prices.Count; j++)
                 {
                     Console.SetCursorPosition(5 + (j + 1) * 8, count);
@@ -710,7 +685,7 @@ namespace NEA_prototype
             Console.WriteLine("\nPredicted values below");
             count++;
 
-            for (long i = prices[0][prices[0].Count-1].Item1; i <endOfPrediction; i += 86400*20)
+            for (long i = prices[0][prices[0].Count-1].Item1+offset; i <endOfPrediction; i += 86400*20)
             {
                 Console.SetCursorPosition(0, count);
                 Console.Write(ConvertToyyyymmdd(i));
