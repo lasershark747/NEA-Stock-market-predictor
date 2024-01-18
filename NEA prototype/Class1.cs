@@ -7,13 +7,11 @@ namespace NEA_prototype
     {
         private List<(long, double)> data;
         private List<double> curve;
-
         public SumOfResiduals(List<(long, double)> data, List<double> curve)
         {
             this.data = data;
             this.curve = curve;
         }
-
         public double Residuals()
         {
             double sum = 0;
@@ -27,7 +25,6 @@ namespace NEA_prototype
             double variance = sum / (data.Count-curve.Count);
             return variance;
         }
-
         private double FOfX(long x)
         {
             double sum = 0; 

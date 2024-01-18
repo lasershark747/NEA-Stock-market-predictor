@@ -6,13 +6,12 @@ namespace NEA_prototype
 {
     internal class PolynomialRegression
     {
-        public PolynomialRegression() {}
-
+        public PolynomialRegression() { }
         public List<double> DoPolynomialRegression(List<(long, double)> points)
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
-
-            for (int x = 1; x <= 6; x++)
+            Console.WriteLine(Math.Max(points.Count / 100, 3));
+            for (int x = 1; x <= Math.Min(Math.Max(points.Count / 100, 3),8); x++)
             {
                 List<double> coefficients = new List<double>();
 
@@ -20,7 +19,7 @@ namespace NEA_prototype
                 BigFloat[] matrixB = new BigFloat[x + 1];
 
                 bool outOFRange = false;
-                
+
                 for (int i = 0; i < matrixA.GetLength(0); i++)
                 {
                     for (int j = 0; j < matrixA.GetLength(0); j++)
@@ -33,7 +32,7 @@ namespace NEA_prototype
                         }
 
                         matrixA[i, j] = sumOfx;
-                        
+
                     }
 
                     double sumOfxy = 0;
@@ -52,7 +51,7 @@ namespace NEA_prototype
                     double sum = 0;
 
                     for (int j = 0; j < inverseMatrixA.GetLength(0); j++)
-                    {                        
+                    {
                         if (inverseMatrixA[i, j] * matrixB[j] < double.MinValue)
                         {
                             outOFRange = true;
@@ -61,9 +60,9 @@ namespace NEA_prototype
                         {
                             sum += (double)(inverseMatrixA[i, j] * matrixB[j]);
                         }
-                        
+
                     }
-                    if(Double.IsNaN(sum))
+                    if (Double.IsNaN(sum))
                     {
                         outOFRange = true;
                     }
@@ -72,8 +71,12 @@ namespace NEA_prototype
 
                 if (!outOFRange)
                 {
-                    Console.WriteLine("Degree " + x + " polynomial has been succesfully generated");
+                    Console.WriteLine("Degree " + x + " polynomial has been successfully generated");
                     ListOfCoefficients.Add(coefficients);
+                }
+                else
+                {
+                    Console.WriteLine("Degree " + x + " polynomial hasn't been successfully generated");
                 }
             }
 
@@ -84,17 +87,16 @@ namespace NEA_prototype
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
                 double variance = s.Residuals();
-                Console.WriteLine(i+1 + "  " + variance);
+                Console.WriteLine(i + 1 + "  " + variance);
                 if (bestVariance > variance)
                 {
                     bestVariance = variance;
                     bestLine = i;
                 }
             }
-            
+
             return ListOfCoefficients[bestLine];
         }
-
         private BigFloat[,] Inverse(BigFloat[,] matrix)
         {
             BigFloat[,] inverse = new BigFloat[matrix.GetLength(0), matrix.GetLength(0)];
@@ -111,7 +113,7 @@ namespace NEA_prototype
             else
             {
                 BigFloat det = Determinant(matrix);
-                
+
                 for (int i = 0; i < matrix.GetLength(0); i++)
                 {
                     for (int j = 0; j < matrix.GetLength(0); j++)
@@ -157,7 +159,7 @@ namespace NEA_prototype
             }
             return det;
         }
-        private BigFloat[,] Cofactor(BigFloat[,] matrix, double row, double coloum)
+        private BigFloat[,] Cofactor(BigFloat[,] matrix, double row, double column)
         {
             BigFloat[,] cofactorMatrix = new BigFloat[matrix.GetLength(0) - 1, matrix.GetLength(0) - 1];
 
@@ -171,29 +173,29 @@ namespace NEA_prototype
                 }
                 else
                 {
-                    bool checkColoum = false;
+                    bool checkColumn = false;
 
                     for (int j = 0; j < matrix.GetLength(0); j++)
                     {
-                        if (j == coloum)
+                        int x = j;
+                        int y = i;
+
+                        if (j == column)
                         {
-                            checkColoum = true;
-                        }
-                        else if (checkColoum && checkRow)
-                        {
-                            cofactorMatrix[i - 1, j - 1] = matrix[i, j];
-                        }
-                        else if (checkRow)
-                        {
-                            cofactorMatrix[i - 1, j] = matrix[i, j];
-                        }
-                        else if (checkColoum)
-                        {
-                            cofactorMatrix[i, j - 1] = matrix[i, j];
+                            checkColumn = true;
                         }
                         else
                         {
-                            cofactorMatrix[i, j] = matrix[i, j];
+                            if (checkRow)
+                            {
+                                y--;
+                            }
+                            if (checkColumn)
+                            {
+                                x--;
+                            }
+
+                            cofactorMatrix[y, x] = matrix[i, j];
                         }
                     }
                 }
@@ -217,4 +219,3 @@ namespace NEA_prototype
         }
     }
 }
-

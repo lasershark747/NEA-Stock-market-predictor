@@ -21,15 +21,12 @@ namespace NEA_prototype
             label1.Text = "The scale for the x-axis of the graph is in UNIX time";
             this.offset = offset;
         }
-
         private void GenerateColours()
         {
             string colourList = "LightSalmon.LightSeaGreen.Aqua.LightSkyBlue.Aquamarine.LightSlateGray.LightSteelBlue.Lime.Black.LimeGreen.Blue.Magenta.BlueViolet.Maroon.Brown.MediumAquamarine.MediumBlue.CadetBlue.MediumOrchid.Chartreuse.MediumPurple.Chocolate.MediumSeaGreen.Coral.MediumSlateBlue.CornflowerBlue.MediumSpringGreen.MediumTurquoise.Crimson.MediumVioletRed.Cyan.MidnightBlue.DarkBlue.DarkCyan.DarkGoldenrod.DarkGreen.Navy.DarkMagena.Olive.DarkOliveGreen.OliveDrab.Orange.DarkOrchid.OrangeRed.DarkRed.Orchid.PaleGoldenrod.DarkSeaGreen.PaleGreen.DarkSlateBlue.PaleTurquoise.DarkSlateGray.PaleVioletRed.DarkTurquoise.DarkViolet.DeepPink.Peru.DeepSkyBlue.DimGray.Plum.DodgerBlue.PowderBlue.Firebrick.Purple.Red.ForestGreen.RosyBrown.Fuschia.RoyalBlue.SaddleBrown.Salmon.Gold.SandyBrown.Goldenrod.SeaGreen.Gray.Green.Sienna.GreenYellow.Silver.SkyBlue.HotPink.SlateBlue.IndianRed.SlateGray.Indigo.SpringGreen.Khaki.SteelBlue.Tan.Teal.LawnGreen.Tomato.Turquoise.LightCoral.Violet.LightGreen.LightPink.YellowGreen";
             colours = colourList.Split('.');
         }
-
         private void Line_Chart_Load(object sender, EventArgs e) { }
-
         public void AddNewSeries(List<(long, double)> points, string name)
         {
             bool duplicate = false;
@@ -101,11 +98,23 @@ namespace NEA_prototype
                 chart1.Series.Add(name);
                 chart1.Series[name].ChartType = SeriesChartType.Line;
                 chart1.Series[name].Color = Color.FromName(colour);
-                Console.WriteLine();
+                
+                string[] s = DateTime.Now.Date.ToString().Split(' ');
+                string[] currentDay = s[0].Split('/');
+                long maxUNIX = Program.ConvertToUNIX(currentDay[2] + "-" + currentDay[1] + "-" + currentDay[0]);
+
                 if (endDate == 0)
                 {
                     Console.WriteLine("Now choosing date that you want to see the prediction up to.");
-                    endDate = Program.ConvertToUNIX()-offset;
+                    
+                    while (true)
+                    {
+                        endDate = Program.ConvertToUNIX() - offset;
+                        if(endDate > maxUNIX-offset)
+                        {
+                            break;
+                        }
+                    }
                 }
 
                 for (long i = startDate; i < endDate; i += 86400)
@@ -127,8 +136,6 @@ namespace NEA_prototype
                     }
                 }
             }
-        }
-
-        
+        }   
     }
 }
