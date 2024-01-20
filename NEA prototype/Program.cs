@@ -187,7 +187,7 @@ namespace NEA_prototype
                     StreamReader reader = new StreamReader(dataStream);
 
                     string responseFromServer = reader.ReadToEnd();
-                    Console.WriteLine(responseFromServer);
+
                     infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
 
                     break;
