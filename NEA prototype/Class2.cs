@@ -86,7 +86,6 @@ namespace NEA_prototype
             {
                 SumOfResiduals s = new SumOfResiduals(points, ListOfCoefficients[i]);
                 double variance = s.Residuals();
-                Console.WriteLine(i + 1 + "  " + variance);
                 if (bestVariance > variance)
                 {
                     bestVariance = variance;

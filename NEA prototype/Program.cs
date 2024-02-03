@@ -71,7 +71,7 @@ namespace NEA_prototype
                     prices[] valuesOfStock = infoAboutStock.results;
                     points = new List<(long, double)>();
 
-                    if (valuesOfStock.Length > 0)
+                    if (valuesOfStock != null && valuesOfStock.Length > 0)
                     {
                         long l = valuesOfStock[0].t / 1000 - 86400;
                         offset = l;
@@ -83,7 +83,7 @@ namespace NEA_prototype
                     }
                     else
                     {
-                        Console.WriteLine("Please enter a valid ticker for the NASDAQ in the correct capitalization");
+                        Console.WriteLine("Please enter a valid ticker for the NASDAQ in the correct capitalization and make sure the timespan isn't only on weekends or bank holidays");
                     }
                 }
                 stockNames.Add(infoAboutStock.ticker);
