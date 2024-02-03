@@ -57,7 +57,7 @@ namespace NEA_prototype
 
                 foreach ((long, double) point in points)
                 {
-                    chart1.Series[name].Points.AddXY(point.Item1, point.Item2);
+                    chart1.Series[name].Points.AddXY(point.Item1+offset, point.Item2);
                 }
 
                 chart1.Series.Add(name + "1");
@@ -66,7 +66,7 @@ namespace NEA_prototype
 
                 foreach ((long, double) point in points)
                 {
-                    chart1.Series[name + "1"].Points.AddXY(point.Item1, point.Item2);
+                    chart1.Series[name + "1"].Points.AddXY(point.Item1+offset, point.Item2);
                 }
             }
         }
@@ -132,7 +132,7 @@ namespace NEA_prototype
                     }
                     else
                     {
-                        chart1.Series[name].Points.AddXY(i, predictiedValue);
+                        chart1.Series[name].Points.AddXY(i + offset, predictiedValue);
                     }
                 }
             }

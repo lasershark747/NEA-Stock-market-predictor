@@ -4,7 +4,6 @@ using System.IO;
 using System.Net; 
 using Newtonsoft.Json; 
 using System.Text.RegularExpressions;
-using System.Linq;
 
 namespace NEA_prototype 
 { 
@@ -56,6 +55,8 @@ namespace NEA_prototype
                     numOfStocks = int.Parse(buffer);
                     break;
                 }
+                else
+                    Console.WriteLine("Please enter a number from 1-8");
             }
 
             long offset = 0;
@@ -187,7 +188,7 @@ namespace NEA_prototype
                     StreamReader reader = new StreamReader(dataStream);
 
                     string responseFromServer = reader.ReadToEnd();
-
+                    
                     infoAboutStock = JsonConvert.DeserializeObject<InfoAboutStock>(responseFromServer);
 
                     break;
@@ -202,6 +203,7 @@ namespace NEA_prototype
                     {
                         Console.WriteLine("Error in the API request\nSome possible errors are:\nEntered data incorrectly\nStock isn't on the NASDAQ\nDate inputed isn't within correct time span --> up to 2 year in the past\nInternet may be down");
                     }
+                    Console.ReadKey();
                 }
             }
 
@@ -240,9 +242,9 @@ namespace NEA_prototype
 
                 while (true)
                 {
-                    Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: minute, hour, day, week, month, quarter, year.");
+                    Console.WriteLine("Please enter the time span for the request.\nThe only accepted time spans are: hour, day, week, month, quarter, year.");
                     string buffer = Console.ReadLine();
-                    List<string> timeSpans = new List<string> { "minute", "hour", "day", "month", "quarter", "year" };
+                    List<string> timeSpans = new List<string> { "hour", "day", "month", "quarter", "year" };
                     if (timeSpans.Contains(buffer))
                     {
                         output += buffer + "/";
@@ -260,6 +262,7 @@ namespace NEA_prototype
                 {
                     long startDate = 0;
                     long endDate = 0;
+                    dates = "";
 
                     while (true)
                     {
@@ -303,7 +306,7 @@ namespace NEA_prototype
                         Console.WriteLine("The end date needs to be after the start date\nDates can't be more then 2 years in the past\nDates can't be in the future");
                     }
                 }
-                output += dates + "?adjusted=true&sort=asc&limit=5000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
+                output += dates + "?adjusted=true&sort=asc&limit=50000&apiKey=CM_QQuAvxVCV7hM8RS9jDCRIJh85Ux2v";
 
                 while (true)
                 {
@@ -333,7 +336,7 @@ namespace NEA_prototype
         }
         public static long ConvertToUNIX()
         {
-            string regExDate = "^202\\d-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$";
+            string regExDate = "^202\\d-(0[1-9]|1[0-2])-(0[1-9]|[1-2][0-9]|3[01])$";
 
             while (true)
             {
@@ -464,7 +467,7 @@ namespace NEA_prototype
         }
         static (long, double) binarySearch(long unixTime, List<(long, double)> stockValues)
         {
-            long number =unixTime;
+            long number = unixTime;
             List<(long, double)> trialList = stockValues;
 
             int min = 0;

@@ -10,8 +10,7 @@ namespace NEA_prototype
         public List<double> DoPolynomialRegression(List<(long, double)> points)
         {
             List<List<double>> ListOfCoefficients = new List<List<double>>();
-            Console.WriteLine(Math.Max(points.Count / 100, 3));
-            for (int x = 1; x <= Math.Min(Math.Max(points.Count / 100, 3),8); x++)
+            for (int x = 1; x <= Math.Min(Math.Max(points.Count / 100, 3),7); x++)
             {
                 List<double> coefficients = new List<double>();
 
